@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAM3 Segmentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a2235;
+            --bg-hover: #243049;
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.3);
+            --positive: #22c55e;
+            --negative: #ef4444;
+            --border: #1e293b;
+            --border-light: #334155;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .header-title {
+            font-size: 18px; font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .header-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+        .header-badge {
+            display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary);
+        }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--positive); box-shadow: 0 0 6px var(--positive); }
+
+        .app { display: flex; height: calc(100vh - 56px); }
+        .sidebar {
+            width: 320px; min-width: 320px;
+            background: var(--bg-secondary); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; overflow-y: auto;
+        }
+        .section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+        .section h3 {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--text-muted); margin-bottom: 12px; font-weight: 600;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border-light); border-radius: var(--radius);
+            padding: 24px 16px; text-align: center; cursor: pointer;
+            transition: all 0.2s; background: rgba(59,130,246,0.03);
+        }
+        .upload-zone:hover { border-color: var(--accent); background: rgba(59,130,246,0.08); }
+        .upload-zone.dragging { border-color: var(--accent); background: rgba(59,130,246,0.12); }
+        .upload-icon { font-size: 28px; margin-bottom: 4px; }
+        .upload-text { font-size: 12px; color: var(--text-secondary); }
+        .upload-text strong { color: var(--accent); }
+        #imageInfo { display:none; margin-top:8px; font-size:11px; color:var(--text-secondary); }
+
+        .text-input-group { display: flex; gap: 6px; }
+        .text-input {
+            flex: 1; padding: 10px 14px; border-radius: 8px;
+            border: 1px solid var(--border-light); background: var(--bg-card);
+            color: var(--text-primary); font-size: 13px; font-family: 'Inter', sans-serif;
+            outline: none; transition: border-color 0.2s;
+        }
+        .text-input:focus { border-color: var(--accent); }
+        .text-input::placeholder { color: var(--text-muted); }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+            padding: 9px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
+            font-family: 'Inter', sans-serif; cursor: pointer; border: 1px solid transparent;
+            transition: all 0.2s; white-space: nowrap;
+        }
+        .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .btn-primary { background: var(--accent); color: white; box-shadow: 0 2px 8px var(--accent-glow); }
+        .btn-primary:hover:not(:disabled) { background: #2563eb; }
+        .btn-secondary { background: var(--bg-card); color: var(--text-primary); border-color: var(--border-light); }
+        .btn-secondary:hover:not(:disabled) { background: var(--bg-hover); }
+        .btn-danger { background: rgba(239,68,68,0.1); color: var(--negative); border: 1px solid rgba(239,68,68,0.2); }
+        .btn-danger:hover:not(:disabled) { background: rgba(239,68,68,0.2); }
+        .btn-block { width: 100%; }
+        .btn-group { display: flex; gap: 6px; }
+        .btn-group .btn { flex: 1; }
+
+        .mode-toggle { display: flex; background: var(--bg-card); border-radius: 8px; padding: 3px; gap: 3px; }
+        .mode-btn {
+            flex: 1; padding: 7px 10px; border: none; border-radius: 6px;
+            font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+            font-family: 'Inter', sans-serif; color: var(--text-secondary); background: transparent;
+        }
+        .mode-btn.active { color: white; }
+        .mode-btn.active.pm { background: var(--positive); box-shadow: 0 2px 6px rgba(34,197,94,0.3); }
+        .mode-btn.active.nm { background: var(--negative); box-shadow: 0 2px 6px rgba(239,68,68,0.3); }
+        .mode-btn:hover:not(.active) { background: var(--bg-hover); }
+
+        .steps { display: flex; gap: 0; margin-bottom: 4px; }
+        .step {
+            flex: 1; text-align: center; padding: 8px 4px; font-size: 10px;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
+            color: var(--text-muted); background: var(--bg-card);
+            border-bottom: 2px solid transparent; transition: all 0.2s; cursor: pointer;
+        }
+        .step:first-child { border-radius: 8px 0 0 0; }
+        .step:last-child { border-radius: 0 8px 0 0; }
+        .step.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(59,130,246,0.08); }
+        .step.done { color: var(--positive); border-bottom-color: var(--positive); }
+
+        .objects-list { display: flex; flex-direction: column; gap: 5px; }
+        .object-chip {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 12px; background: var(--bg-card); border-radius: 8px;
+            font-size: 12px; cursor: pointer; transition: all 0.15s;
+            border: 1px solid transparent;
+        }
+        .object-chip:hover { background: var(--bg-hover); }
+        .object-chip.selected { border-color: var(--accent); background: rgba(59,130,246,0.1); }
+        .obj-color { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .obj-info { flex: 1; }
+        .obj-score { font-size: 11px; color: var(--text-muted); }
+
+        /* Box list */
+        .boxes-list { display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; }
+        .box-item {
+            display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+            background: var(--bg-card); border-radius: 6px; font-size: 11px;
+        }
+        .box-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+        .box-dot.pos { background: var(--positive); }
+        .box-dot.neg { background: var(--negative); }
+        .box-coords { color: var(--text-secondary); flex: 1; font-family: monospace; font-size: 10px; }
+        .box-rm { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px; padding: 2px; border-radius: 3px; }
+        .box-rm:hover { color: var(--negative); background: rgba(239,68,68,0.1); }
+
+        .empty { text-align: center; padding: 16px; color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+
+        .score-box { background: var(--bg-card); border-radius: var(--radius); padding: 14px; text-align: center; }
+        .score-val {
+            font-size: 28px; font-weight: 700;
+            background: linear-gradient(135deg, #22c55e, #3b82f6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .score-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+        .score-det { font-size: 11px; color: var(--text-secondary); margin-top: 6px; }
+
+        .view-toggle { display: flex; gap: 4px; flex-wrap: wrap; }
+        .view-btn {
+            padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: 500;
+            cursor: pointer; border: 1px solid var(--border-light); background: var(--bg-card);
+            color: var(--text-secondary); transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .view-btn.active { border-color: var(--accent); background: rgba(59,130,246,0.15); color: var(--accent); }
+        .view-btn:hover:not(.active) { background: var(--bg-hover); }
+
+        .canvas-area {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            padding: 20px; position: relative;
+            background: radial-gradient(circle at 50% 50%, rgba(59,130,246,0.03) 0%, transparent 70%), var(--bg-primary);
+        }
+        .canvas-wrapper {
+            position: relative; box-shadow: var(--shadow); border-radius: var(--radius);
+            overflow: hidden; border: 1px solid var(--border);
+        }
+        #imageCanvas { display: block; cursor: crosshair; }
+        .placeholder {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 500px; height: 340px; border: 2px dashed var(--border-light);
+            border-radius: var(--radius); color: var(--text-muted); font-size: 13px; gap: 10px;
+        }
+        .placeholder .icon { font-size: 40px; opacity: 0.5; }
+
+        .spinner {
+            display: none; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); z-index: 10;
+        }
+        .spinner.on { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .spinner-ring {
+            width: 36px; height: 36px; border: 3px solid var(--border-light);
+            border-top-color: var(--accent); border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        .spinner-text { font-size: 11px; color: var(--text-secondary); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        kbd {
+            display: inline-block; padding: 1px 5px; font-size: 10px;
+            background: var(--bg-card); border: 1px solid var(--border-light);
+            border-radius: 3px; color: var(--text-secondary); font-family: monospace;
+        }
+        .shortcuts { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 11px; color: var(--text-secondary); }
+
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px);
+            background: var(--bg-card); border: 1px solid var(--border-light);
+            border-radius: 8px; padding: 10px 20px; font-size: 12px; color: var(--text-primary);
+            box-shadow: var(--shadow); z-index: 200; transition: transform 0.25s ease;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* Cursor hint */
+        .cursor-hint {
+            position: fixed; pointer-events: none; z-index: 50;
+            font-size: 10px; font-weight: 600; padding: 2px 6px;
+            border-radius: 4px; color: white; white-space: nowrap;
+            transform: translate(16px, -50%);
+        }
+        .cursor-hint.pos { background: var(--positive); }
+        .cursor-hint.neg { background: var(--negative); }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <div class="header-title">SAM3 Segmentation</div>
+        <div class="header-sub">Text prompt → Draw boxes to refine</div>
+    </div>
+    <div class="header-badge"><div class="dot"></div>Model loaded</div>
+</div>
+
+<div class="app">
+<div class="sidebar">
+    <div class="steps">
+        <div class="step active" id="step1">① Upload</div>
+        <div class="step" id="step2">② Text</div>
+        <div class="step" id="step3">③ Refine</div>
+    </div>
+
+    <div class="section">
+        <h3>Upload Image</h3>
+        <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text"><strong>Click</strong> or drag & drop</div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" hidden>
+        <div id="imageInfo"></div>
+    </div>
+
+    <div class="section">
+        <h3>Text Prompt</h3>
+        <div class="text-input-group">
+            <input class="text-input" id="textInput" type="text" placeholder="e.g. person, car, dog…" disabled>
+            <button class="btn btn-primary" id="segmentBtn" disabled>Segment</button>
+        </div>
+        <div style="margin-top:8px; font-size:11px; color:var(--text-muted)">
+            Enter what to find, then draw boxes to correct.
+        </div>
+    </div>
+
+    <div class="section" id="objectsSection" style="display:none;">
+        <h3>Detected Objects <span id="objCount" style="color:var(--accent)"></span></h3>
+        <div id="objectsList" class="objects-list"></div>
+        <div style="margin-top:8px;">
+            <button class="btn btn-secondary btn-block" id="selectAllBtn">Select All</button>
+        </div>
+    </div>
+
+    <div class="section" id="boxSection" style="display:none;">
+        <h3>Box Refinement <span id="boxCount" style="color:var(--accent)"></span></h3>
+        <div class="mode-toggle" style="margin-bottom:8px;">
+            <button class="mode-btn active pm" data-mode="1" id="modePos">✚ Include</button>
+            <button class="mode-btn nm" data-mode="0" id="modeNeg">✕ Exclude</button>
+        </div>
+        <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">
+            Click & drag on image to draw a box
+        </div>
+        <div id="boxesList" class="boxes-list">
+            <div class="empty">Draw a box around the region to include or exclude</div>
+        </div>
+        <div class="btn-group" style="margin-top:8px;">
+            <button class="btn btn-secondary" id="undoBtn" disabled>↩ Undo</button>
+            <button class="btn btn-danger" id="clearBoxBtn" disabled>Clear boxes</button>
+        </div>
+    </div>
+
+    <div class="section" id="scoreSection" style="display:none;">
+        <div class="score-box">
+            <div class="score-val" id="scoreVal">—</div>
+            <div class="score-lbl">Confidence</div>
+            <div class="score-det" id="scoreDet"></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Display</h3>
+        <div class="view-toggle">
+            <button class="view-btn active" data-view="overlay">Overlay</button>
+            <button class="view-btn" data-view="mask">Mask</button>
+            <button class="view-btn" data-view="blackout">Blackout</button>
+            <button class="view-btn" data-view="original">Original</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <button class="btn btn-primary btn-block" id="downloadBtn" disabled>💾 Download</button>
+    </div>
+
+    <div class="section">
+        <h3>Shortcuts</h3>
+        <div class="shortcuts">
+            <kbd>Enter</kbd> <span>Run text segment</span>
+            <kbd>Drag</kbd> <span>Draw include box</span>
+            <kbd>Right-drag</kbd> <span>Draw exclude box</span>
+            <kbd>Ctrl+Z</kbd> <span>Undo last box</span>
+            <kbd>1 / 2</kbd> <span>Include / Exclude mode</span>
+        </div>
+    </div>
+</div>
+
+<div class="canvas-area" id="canvasArea">
+    <div class="placeholder" id="placeholder">
+        <div class="icon">🖼️</div>
+        <div>Upload an image to begin</div>
+    </div>
+    <div class="canvas-wrapper" id="canvasWrapper" style="display:none;">
+        <canvas id="imageCanvas"></canvas>
+        <div class="spinner" id="spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-text" id="spinnerText">Segmenting…</div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="cursor-hint" id="cursorHint" style="display:none;"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const S = {
+    imageId: null, imgW: 0, imgH: 0, scale: 1,
+    textObjects: [], textCombinedOverlay: null, textCombinedMask: null, textCombinedBlackout: null,
+    boxMode: 1,         // 1=include, 0=exclude
+    boxes: [],          // [{x1, y1, x2, y2, label}]
+    boxOverlay: null, boxMask: null, boxBlackout: null, boxScore: null,
+    finalOverlay: null, finalMask: null, finalBlackout: null,
+    view: "overlay", phase: "upload",
+    drawing: false, drawStart: null,  // {x, y}
+};
+
+const canvas = document.getElementById("imageCanvas");
+const ctx = canvas.getContext("2d");
+let baseImage = null;
+
+const OBJ_COLORS = ["#3c8cff","#ff6347","#32cd32","#ffd700","#da70d6","#00ced1","#ff69b4","#7b68ee"];
+
+// ── Upload ──
+const uploadZone = document.getElementById("uploadZone");
+const fileInput = document.getElementById("fileInput");
+uploadZone.addEventListener("click", () => fileInput.click());
+uploadZone.addEventListener("dragover", e => { e.preventDefault(); uploadZone.classList.add("dragging"); });
+uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragging"));
+uploadZone.addEventListener("drop", e => { e.preventDefault(); uploadZone.classList.remove("dragging"); if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener("change", () => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
+
+async function handleFile(file) {
+    if (!file.type.startsWith("image/")) { toast("Not an image"); return; }
+    const fd = new FormData(); fd.append("image", file);
+    toast("Uploading…");
+    const r = await fetch("/upload", { method: "POST", body: fd });
+    const d = await r.json();
+    if (d.error) { toast("Upload failed"); return; }
+    S.imageId = d.id; S.imgW = d.width; S.imgH = d.height;
+    resetState();
+    document.getElementById("imageInfo").style.display = "block";
+    document.getElementById("imageInfo").textContent = `${file.name} — ${d.width}×${d.height}`;
+    baseImage = new Image();
+    baseImage.onload = () => {
+        fitCanvas(); redraw();
+        document.getElementById("placeholder").style.display = "none";
+        document.getElementById("canvasWrapper").style.display = "block";
+        setPhase("text");
+        toast("Ready — enter text or draw boxes directly");
+    };
+    baseImage.src = `/uploads/${d.id}.png`;
+}
+
+function resetState() {
+    S.textObjects = []; S.textCombinedOverlay = null; S.textCombinedMask = null; S.textCombinedBlackout = null;
+    S.boxes = []; S.boxOverlay = null; S.boxMask = null; S.boxBlackout = null; S.boxScore = null;
+    S.finalOverlay = null; S.finalMask = null; S.finalBlackout = null;
+    document.getElementById("objectsSection").style.display = "none";
+    document.getElementById("boxSection").style.display = "none";
+    document.getElementById("scoreSection").style.display = "none";
+}
+
+function fitCanvas() {
+    const a = document.getElementById("canvasArea");
+    S.scale = Math.min((a.clientWidth - 40) / S.imgW, (a.clientHeight - 40) / S.imgH, 1);
+    canvas.width = Math.round(S.imgW * S.scale);
+    canvas.height = Math.round(S.imgH * S.scale);
+}
+
+function setPhase(p) {
+    S.phase = p;
+    document.getElementById("step1").className = "step" + (p === "upload" ? " active" : " done");
+    document.getElementById("step2").className = "step" + (p === "text" ? " active" : (p === "refine" ? " done" : ""));
+    document.getElementById("step3").className = "step" + (p === "refine" ? " active" : "");
+    document.getElementById("textInput").disabled = (p === "upload");
+    document.getElementById("segmentBtn").disabled = (p === "upload");
+    document.getElementById("boxSection").style.display = (p === "refine" || p === "text") ? "block" : "none";
+    updateUI();
+}
+
+// ── Text seg ──
+document.getElementById("segmentBtn").addEventListener("click", runTextSeg);
+document.getElementById("textInput").addEventListener("keydown", e => { if (e.key === "Enter") runTextSeg(); });
+
+async function runTextSeg() {
+    const text = document.getElementById("textInput").value.trim();
+    if (!text || !S.imageId) return;
+    showSpinner("Segmenting text…");
+    S.boxes = []; S.boxOverlay = null; S.boxMask = null; S.boxBlackout = null;
+    const r = await fetch("/segment_text", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_id: S.imageId, text }),
+    });
+    const d = await r.json(); hideSpinner();
+    if (d.found === 0) { toast("No objects found — try different text"); return; }
+    S.textObjects = d.objects.map(o => ({ ...o, selected: true }));
+    S.textCombinedOverlay = d.combined_overlay;
+    S.textCombinedMask = d.combined_mask;
+    S.textCombinedBlackout = d.combined_blackout;
+    S.finalOverlay = d.combined_overlay;
+    S.finalMask = d.combined_mask;
+    S.finalBlackout = d.combined_blackout;
+    renderObjects(); setPhase("refine");
+    showScore(null, d.combined_pixels, d.total_pixels);
+    toast(`Found ${d.found} object(s) — draw boxes to refine`);
+    redrawWithOverlay(S.finalOverlay);
+}
+
+function renderObjects() {
+    const sec = document.getElementById("objectsSection"); sec.style.display = "block";
+    document.getElementById("objCount").textContent = `(${S.textObjects.length})`;
+    document.getElementById("objectsList").innerHTML = S.textObjects.map((o, i) => `
+        <div class="object-chip ${o.selected ? 'selected' : ''}" onclick="toggleObj(${i})">
+            <div class="obj-color" style="background:${OBJ_COLORS[i % OBJ_COLORS.length]}"></div>
+            <div class="obj-info">Object ${i + 1}</div>
+            <div class="obj-score">${o.score.toFixed(2)}</div>
+        </div>
+    `).join("");
+}
+
+function toggleObj(idx) { S.textObjects[idx].selected = !S.textObjects[idx].selected; renderObjects(); rebuildTextMask(); }
+
+document.getElementById("selectAllBtn").addEventListener("click", () => {
+    const allSel = S.textObjects.every(o => o.selected);
+    S.textObjects.forEach(o => o.selected = !allSel);
+    renderObjects(); rebuildTextMask();
+});
+
+async function rebuildTextMask() {
+    const sel = S.textObjects.filter(o => o.selected);
+    if (sel.length === 0) { S.finalOverlay = null; S.finalMask = null; S.finalBlackout = null; redraw(); updateUI(); return; }
+    const combined = document.createElement("canvas"); combined.width = S.imgW; combined.height = S.imgH;
+    const cctx = combined.getContext("2d");
+    for (const obj of sel) { const img = await loadImgB64(obj.mask); cctx.drawImage(img, 0, 0); }
+    const idata = cctx.getImageData(0, 0, S.imgW, S.imgH);
+    const overlay = document.createElement("canvas"); overlay.width = S.imgW; overlay.height = S.imgH;
+    const octx = overlay.getContext("2d"); const odata = octx.createImageData(S.imgW, S.imgH);
+    const bcanvas = document.createElement("canvas"); bcanvas.width = S.imgW; bcanvas.height = S.imgH;
+    const bctx = bcanvas.getContext("2d"); bctx.drawImage(baseImage, 0, 0);
+    const bdata = bctx.getImageData(0, 0, S.imgW, S.imgH);
+    let maskPx = 0;
+    for (let i = 0; i < idata.data.length; i += 4) {
+        if (idata.data[i] > 127) {
+            odata.data[i] = 60; odata.data[i+1] = 140; odata.data[i+2] = 255; odata.data[i+3] = 128;
+            bdata.data[i] = 0; bdata.data[i+1] = 0; bdata.data[i+2] = 0; maskPx++;
+        }
+    }
+    octx.putImageData(odata, 0, 0); bctx.putImageData(bdata, 0, 0);
+    S.finalOverlay = canvasToB64(overlay); S.finalMask = canvasToB64(combined); S.finalBlackout = canvasToB64(bcanvas);
+    S.textCombinedMask = S.finalMask;
+    showScore(null, maskPx, S.imgW * S.imgH);
+    redrawWithOverlay(S.finalOverlay); updateUI();
+}
+
+// ── Box drawing ──
+canvas.addEventListener("mousedown", e => {
+    if (!S.imageId || S.phase === "upload") return;
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.round((e.clientX - rect.left) / S.scale);
+    const y = Math.round((e.clientY - rect.top) / S.scale);
+    // Right click = negative
+    const label = e.button === 2 ? 0 : S.boxMode;
+    S.drawing = true;
+    S.drawStart = { x, y, label };
+});
+
+canvas.addEventListener("mousemove", e => {
+    // Cursor hint
+    const hint = document.getElementById("cursorHint");
+    if (S.imageId && S.phase !== "upload") {
+        hint.style.display = "block";
+        hint.style.left = e.clientX + "px";
+        hint.style.top = e.clientY + "px";
+        hint.className = "cursor-hint " + (S.boxMode === 1 ? "pos" : "neg");
+        hint.textContent = S.boxMode === 1 ? "Include" : "Exclude";
+    } else {
+        hint.style.display = "none";
+    }
+
+    if (!S.drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = Math.round((e.clientX - rect.left) / S.scale);
+    const my = Math.round((e.clientY - rect.top) / S.scale);
+    redrawCurrent();
+    // Draw preview box
+    ctx.save();
+    ctx.scale(S.scale, S.scale);
+    const sx = S.drawStart.x, sy = S.drawStart.y;
+    const w = mx - sx, h = my - sy;
+    const isPos = S.drawStart.label === 1;
+    ctx.strokeStyle = isPos ? "#22c55e" : "#ef4444";
+    ctx.lineWidth = 2 / S.scale;
+    ctx.setLineDash([6 / S.scale, 4 / S.scale]);
+    ctx.strokeRect(sx, sy, w, h);
+    ctx.setLineDash([]);
+    ctx.fillStyle = isPos ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)";
+    ctx.fillRect(sx, sy, w, h);
+    ctx.restore();
+});
+
+canvas.addEventListener("mouseup", e => {
+    if (!S.drawing) return;
+    S.drawing = false;
+    const rect = canvas.getBoundingClientRect();
+    const mx = Math.round((e.clientX - rect.left) / S.scale);
+    const my = Math.round((e.clientY - rect.top) / S.scale);
+    const sx = S.drawStart.x, sy = S.drawStart.y;
+
+    // Minimum box size check (ignore tiny accidental clicks)
+    const bw = Math.abs(mx - sx), bh = Math.abs(my - sy);
+    if (bw < 5 && bh < 5) { redrawCurrent(); return; }
+
+    const box = {
+        x1: Math.min(sx, mx), y1: Math.min(sy, my),
+        x2: Math.max(sx, mx), y2: Math.max(sy, my),
+        label: S.drawStart.label,
+    };
+    S.boxes.push(box);
+    if (S.phase === "text") setPhase("refine");
+    runBoxSeg();
+});
+
+canvas.addEventListener("mouseleave", () => {
+    document.getElementById("cursorHint").style.display = "none";
+    if (S.drawing) { S.drawing = false; redrawCurrent(); }
+});
+
+canvas.addEventListener("contextmenu", e => e.preventDefault());
+
+async function runBoxSeg() {
+    if (S.boxes.length === 0) return;
+    showSpinner("Refining…"); updateUI();
+    const r = await fetch("/segment_boxes", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_id: S.imageId, boxes: S.boxes }),
+    });
+    const d = await r.json(); hideSpinner();
+    if (d.error && !d.overlay) { toast("Error: " + d.error); updateUI(); return; }
+    S.boxOverlay = d.overlay; S.boxMask = d.mask; S.boxBlackout = d.blackout; S.boxScore = d.score;
+
+    if (S.textCombinedMask) { await combineMasks(); }
+    else {
+        S.finalOverlay = d.overlay; S.finalMask = d.mask; S.finalBlackout = d.blackout;
+        showScore(d.score, d.mask_pixels, d.total_pixels);
+        redrawWithOverlay(S.finalOverlay);
+    }
+    updateUI();
+}
+
+async function combineMasks() {
+    const textMaskImg = await loadImgB64(S.textCombinedMask);
+    const boxMaskImg = await loadImgB64(S.boxMask);
+    const c = document.createElement("canvas"); c.width = S.imgW; c.height = S.imgH;
+    const cx = c.getContext("2d");
+    cx.drawImage(textMaskImg, 0, 0); const textData = cx.getImageData(0, 0, S.imgW, S.imgH);
+    cx.clearRect(0, 0, S.imgW, S.imgH);
+    cx.drawImage(boxMaskImg, 0, 0); const boxData = cx.getImageData(0, 0, S.imgW, S.imgH);
+
+    const hasPos = S.boxes.some(b => b.label === 1);
+    const hasNeg = S.boxes.some(b => b.label === 0);
+
+    const overlay = document.createElement("canvas"); overlay.width = S.imgW; overlay.height = S.imgH;
+    const octx = overlay.getContext("2d"); const odata = octx.createImageData(S.imgW, S.imgH);
+    const bcanvas = document.createElement("canvas"); bcanvas.width = S.imgW; bcanvas.height = S.imgH;
+    const bctx = bcanvas.getContext("2d"); bctx.drawImage(baseImage, 0, 0);
+    const bdata = bctx.getImageData(0, 0, S.imgW, S.imgH);
+    const mcanvas = document.createElement("canvas"); mcanvas.width = S.imgW; mcanvas.height = S.imgH;
+    const mctx = mcanvas.getContext("2d"); const mdata = mctx.createImageData(S.imgW, S.imgH);
+    let maskPx = 0;
+    for (let i = 0; i < textData.data.length; i += 4) {
+        const tM = textData.data[i] > 127, bM = boxData.data[i] > 127;
+        let f;
+        if (hasPos && !hasNeg) f = tM || bM;
+        else if (hasNeg && !hasPos) f = tM && !bM;
+        else f = tM || bM;
+        if (f) {
+            odata.data[i]=60; odata.data[i+1]=140; odata.data[i+2]=255; odata.data[i+3]=128;
+            bdata.data[i]=0; bdata.data[i+1]=0; bdata.data[i+2]=0;
+            mdata.data[i]=255; mdata.data[i+1]=255; mdata.data[i+2]=255; mdata.data[i+3]=255;
+            maskPx++;
+        }
+    }
+    octx.putImageData(odata, 0, 0); bctx.putImageData(bdata, 0, 0); mctx.putImageData(mdata, 0, 0);
+    S.finalOverlay = canvasToB64(overlay); S.finalMask = canvasToB64(mcanvas); S.finalBlackout = canvasToB64(bcanvas);
+    showScore(S.boxScore, maskPx, S.imgW * S.imgH);
+    redrawWithOverlay(S.finalOverlay);
+}
+
+// ── Drawing ──
+let currentOverlayImg = null;
+
+function redraw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save(); ctx.scale(S.scale, S.scale);
+    if (baseImage) ctx.drawImage(baseImage, 0, 0);
+    if (S.view === "overlay" && currentOverlayImg) ctx.drawImage(currentOverlayImg, 0, 0);
+    drawBoxes(); ctx.restore();
+}
+
+function redrawCurrent() {
+    if (S.finalOverlay) redrawWithOverlaySync(); else redraw();
+}
+
+function redrawWithOverlaySync() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save(); ctx.scale(S.scale, S.scale);
+    if (S.view === "blackout" && S.finalBlackout && currentBlackoutImg) {
+        ctx.drawImage(currentBlackoutImg, 0, 0);
+    } else if (S.view === "mask" && S.finalMask && currentMaskImg) {
+        ctx.fillStyle = "#000"; ctx.fillRect(0, 0, S.imgW, S.imgH);
+        ctx.drawImage(currentMaskImg, 0, 0);
+    } else {
+        if (baseImage) ctx.drawImage(baseImage, 0, 0);
+        if (S.view === "overlay" && currentOverlayImg) ctx.drawImage(currentOverlayImg, 0, 0);
+    }
+    drawBoxes(); ctx.restore();
+}
+
+let currentMaskImg = null, currentBlackoutImg = null;
+
+async function redrawWithOverlay(overlayB64) {
+    if (!overlayB64) { currentOverlayImg = null; currentMaskImg = null; currentBlackoutImg = null; redraw(); return; }
+    currentOverlayImg = await loadImgB64(overlayB64);
+    if (S.finalMask) currentMaskImg = await loadImgB64(S.finalMask);
+    if (S.finalBlackout) currentBlackoutImg = await loadImgB64(S.finalBlackout);
+    redrawWithOverlaySync();
+}
+
+function drawBoxes() {
+    for (const b of S.boxes) {
+        const isPos = b.label === 1;
+        ctx.strokeStyle = isPos ? "#22c55e" : "#ef4444";
+        ctx.lineWidth = 2 / S.scale;
+        ctx.strokeRect(b.x1, b.y1, b.x2 - b.x1, b.y2 - b.y1);
+        // Label
+        ctx.font = `bold ${Math.max(10, 10/S.scale)}px Inter, sans-serif`;
+        ctx.fillStyle = isPos ? "#22c55e" : "#ef4444";
+        ctx.fillText(isPos ? "+" : "−", b.x1 + 4/S.scale, b.y1 + 14/S.scale);
+    }
+}
+
+// ── UI ──
+function showScore(score, px, total) {
+    document.getElementById("scoreSection").style.display = "block";
+    document.getElementById("scoreVal").textContent = score ? score.toFixed(3) : "—";
+    const pct = ((px / total) * 100).toFixed(1);
+    document.getElementById("scoreDet").textContent = `${px.toLocaleString()} / ${total.toLocaleString()} px (${pct}%)`;
+}
+
+function updateUI() {
+    const hasBoxes = S.boxes.length > 0;
+    document.getElementById("undoBtn").disabled = !hasBoxes;
+    document.getElementById("clearBoxBtn").disabled = !hasBoxes;
+    document.getElementById("downloadBtn").disabled = !S.finalOverlay;
+    document.getElementById("boxCount").textContent = hasBoxes ? `(${S.boxes.length})` : "";
+
+    const list = document.getElementById("boxesList");
+    if (!hasBoxes) {
+        list.innerHTML = '<div class="empty">Draw a box around the region to include or exclude</div>';
+    } else {
+        list.innerHTML = S.boxes.map((b, i) => `
+            <div class="box-item">
+                <div class="box-dot ${b.label===1?'pos':'neg'}"></div>
+                <span class="box-coords">[${b.x1},${b.y1}]→[${b.x2},${b.y2}]</span>
+                <button class="box-rm" onclick="removeBox(${i})">×</button>
+            </div>
+        `).join("");
+    }
+}
+
+function removeBox(idx) {
+    S.boxes.splice(idx, 1);
+    if (S.boxes.length > 0) { runBoxSeg(); }
+    else {
+        S.boxOverlay = null; S.boxMask = null; S.boxBlackout = null;
+        if (S.textCombinedOverlay) {
+            S.finalOverlay = S.textCombinedOverlay; S.finalMask = S.textCombinedMask; S.finalBlackout = S.textCombinedBlackout;
+            redrawWithOverlay(S.finalOverlay);
+        } else { S.finalOverlay = null; S.finalMask = null; S.finalBlackout = null; redraw(); }
+    }
+    updateUI();
+}
+
+// ── Buttons ──
+document.getElementById("undoBtn").addEventListener("click", () => removeBox(S.boxes.length - 1));
+document.getElementById("clearBoxBtn").addEventListener("click", () => {
+    S.boxes = []; S.boxOverlay = null; S.boxMask = null; S.boxBlackout = null;
+    if (S.textCombinedOverlay) {
+        S.finalOverlay = S.textCombinedOverlay; S.finalMask = S.textCombinedMask; S.finalBlackout = S.textCombinedBlackout;
+        redrawWithOverlay(S.finalOverlay);
+    } else { S.finalOverlay = null; S.finalMask = null; S.finalBlackout = null; document.getElementById("scoreSection").style.display = "none"; redraw(); }
+    updateUI();
+});
+
+document.querySelectorAll(".mode-btn").forEach(btn => btn.addEventListener("click", () => {
+    S.boxMode = parseInt(btn.dataset.mode);
+    document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+}));
+
+document.querySelectorAll(".view-btn").forEach(btn => btn.addEventListener("click", () => {
+    S.view = btn.dataset.view;
+    document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    if (S.finalOverlay) redrawWithOverlay(S.finalOverlay); else redraw();
+}));
+
+// ── Download ──
+document.getElementById("downloadBtn").addEventListener("click", async () => {
+    const c = document.createElement("canvas"); c.width = S.imgW; c.height = S.imgH;
+    const cx = c.getContext("2d"); cx.drawImage(baseImage, 0, 0);
+    if (S.finalOverlay) { const oi = await loadImgB64(S.finalOverlay); cx.drawImage(oi, 0, 0); }
+    downloadDataUrl(c.toDataURL("image/png"), "sam3_overlay.png");
+    if (S.finalMask) downloadDataUrl("data:image/png;base64," + S.finalMask, "sam3_mask.png");
+    if (S.finalBlackout) downloadDataUrl("data:image/png;base64," + S.finalBlackout, "sam3_blackout.png");
+    toast("Downloaded overlay, mask & blackout");
+});
+function downloadDataUrl(url, name) { const a = document.createElement("a"); a.href = url; a.download = name; a.click(); }
+
+// ── Keyboard ──
+document.addEventListener("keydown", e => {
+    if (e.target.tagName === "INPUT") return;
+    if (e.key === "1") { S.boxMode = 1; document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("active")); document.getElementById("modePos").classList.add("active"); }
+    if (e.key === "2") { S.boxMode = 0; document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("active")); document.getElementById("modeNeg").classList.add("active"); }
+    if ((e.ctrlKey||e.metaKey) && e.key === "z") { e.preventDefault(); if (S.boxes.length) removeBox(S.boxes.length-1); }
+});
+
+// ── Utils ──
+function loadImgB64(b64) { return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = "data:image/png;base64," + b64; }); }
+function canvasToB64(c) { return c.toDataURL("image/png").replace("data:image/png;base64,", ""); }
+function showSpinner(t) { document.getElementById("spinner").classList.add("on"); document.getElementById("spinnerText").textContent = t||"Processing…"; }
+function hideSpinner() { document.getElementById("spinner").classList.remove("on"); }
+function toast(m) { const t = document.getElementById("toast"); t.textContent = m; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2500); }
+window.addEventListener("resize", () => { if (baseImage) { fitCanvas(); if (S.finalOverlay) redrawWithOverlay(S.finalOverlay); else redraw(); } });
+</script>
+</body>
+</html>

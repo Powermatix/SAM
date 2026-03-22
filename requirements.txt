@@ -1,0 +1,9 @@
+torch
+torchvision
+torchaudio
+Pillow
+requests
+matplotlib
+numpy
+huggingface_hub
+# transformers installed from source (main branch) for SAM3 support
