@@ -6,4 +6,5 @@ requests
 matplotlib
 numpy
 huggingface_hub
+flask
 # transformers installed from source (main branch) for SAM3 support
