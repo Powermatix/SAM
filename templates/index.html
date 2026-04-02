@@ -31,7 +31,6 @@
             min-height: 100vh;
             user-select: none;
         }
-
         .header {
             background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
             border-bottom: 1px solid var(--border);
@@ -41,12 +40,10 @@
         .header-title {
             font-size: 18px; font-weight: 700;
             background: linear-gradient(135deg, #60a5fa, #a78bfa);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
         }
         .header-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
-        .header-badge {
-            display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary);
-        }
+        .header-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
         .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--positive); box-shadow: 0 0 6px var(--positive); }
 
         .app { display: flex; height: calc(100vh - 56px); }
@@ -60,29 +57,16 @@
             font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
             color: var(--text-muted); margin-bottom: 12px; font-weight: 600;
         }
-
         .upload-zone {
             border: 2px dashed var(--border-light); border-radius: var(--radius);
-            padding: 24px 16px; text-align: center; cursor: pointer;
+            padding: 20px 16px; text-align: center; cursor: pointer;
             transition: all 0.2s; background: rgba(59,130,246,0.03);
         }
         .upload-zone:hover { border-color: var(--accent); background: rgba(59,130,246,0.08); }
         .upload-zone.dragging { border-color: var(--accent); background: rgba(59,130,246,0.12); }
-        .upload-icon { font-size: 28px; margin-bottom: 4px; }
-        .upload-text { font-size: 12px; color: var(--text-secondary); }
+        .upload-icon { font-size: 24px; margin-bottom: 4px; }
+        .upload-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
         .upload-text strong { color: var(--accent); }
-        #imageInfo { display:none; margin-top:8px; font-size:11px; color:var(--text-secondary); }
-
-        .text-input-group { display: flex; gap: 6px; }
-        .text-input {
-            flex: 1; padding: 10px 14px; border-radius: 8px;
-            border: 1px solid var(--border-light); background: var(--bg-card);
-            color: var(--text-primary); font-size: 13px; font-family: 'Inter', sans-serif;
-            outline: none; transition: border-color 0.2s;
-        }
-        .text-input:focus { border-color: var(--accent); }
-        .text-input::placeholder { color: var(--text-muted); }
-
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 5px;
             padding: 9px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
@@ -99,7 +83,16 @@
         .btn-block { width: 100%; }
         .btn-group { display: flex; gap: 6px; }
         .btn-group .btn { flex: 1; }
-
+        .btn-sm { padding: 5px 10px !important; font-size: 11px !important; border-radius: 6px !important; }
+        .text-input-group { display: flex; gap: 6px; }
+        .text-input {
+            flex: 1; padding: 10px 14px; border-radius: 8px;
+            border: 1px solid var(--border-light); background: var(--bg-card);
+            color: var(--text-primary); font-size: 13px; font-family: 'Inter', sans-serif;
+            outline: none; transition: border-color 0.2s;
+        }
+        .text-input:focus { border-color: var(--accent); }
+        .text-input::placeholder { color: var(--text-muted); }
         .mode-toggle { display: flex; background: var(--bg-card); border-radius: 8px; padding: 3px; gap: 3px; }
         .mode-btn {
             flex: 1; padding: 7px 10px; border: none; border-radius: 6px;
@@ -110,19 +103,6 @@
         .mode-btn.active.pm { background: var(--positive); box-shadow: 0 2px 6px rgba(34,197,94,0.3); }
         .mode-btn.active.nm { background: var(--negative); box-shadow: 0 2px 6px rgba(239,68,68,0.3); }
         .mode-btn:hover:not(.active) { background: var(--bg-hover); }
-
-        .steps { display: flex; gap: 0; margin-bottom: 4px; }
-        .step {
-            flex: 1; text-align: center; padding: 8px 4px; font-size: 10px;
-            font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
-            color: var(--text-muted); background: var(--bg-card);
-            border-bottom: 2px solid transparent; transition: all 0.2s; cursor: pointer;
-        }
-        .step:first-child { border-radius: 8px 0 0 0; }
-        .step:last-child { border-radius: 0 8px 0 0; }
-        .step.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(59,130,246,0.08); }
-        .step.done { color: var(--positive); border-bottom-color: var(--positive); }
-
         .objects-list { display: flex; flex-direction: column; gap: 5px; }
         .object-chip {
             display: flex; align-items: center; gap: 8px;
@@ -135,31 +115,14 @@
         .obj-color { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
         .obj-info { flex: 1; }
         .obj-score { font-size: 11px; color: var(--text-muted); }
-
-        /* Box list */
-        .boxes-list { display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; }
-        .box-item {
-            display: flex; align-items: center; gap: 8px; padding: 6px 10px;
-            background: var(--bg-card); border-radius: 6px; font-size: 11px;
-        }
-        .box-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
-        .box-dot.pos { background: var(--positive); }
-        .box-dot.neg { background: var(--negative); }
-        .box-coords { color: var(--text-secondary); flex: 1; font-family: monospace; font-size: 10px; }
-        .box-rm { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px; padding: 2px; border-radius: 3px; }
-        .box-rm:hover { color: var(--negative); background: rgba(239,68,68,0.1); }
-
-        .empty { text-align: center; padding: 16px; color: var(--text-muted); font-size: 12px; line-height: 1.5; }
-
         .score-box { background: var(--bg-card); border-radius: var(--radius); padding: 14px; text-align: center; }
         .score-val {
             font-size: 28px; font-weight: 700;
             background: linear-gradient(135deg, #22c55e, #3b82f6);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
         }
         .score-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
         .score-det { font-size: 11px; color: var(--text-secondary); margin-top: 6px; }
-
         .view-toggle { display: flex; gap: 4px; flex-wrap: wrap; }
         .view-btn {
             padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: 500;
@@ -168,7 +131,7 @@
         }
         .view-btn.active { border-color: var(--accent); background: rgba(59,130,246,0.15); color: var(--accent); }
         .view-btn:hover:not(.active) { background: var(--bg-hover); }
-
+        .poly-count { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
         .canvas-area {
             flex: 1; display: flex; align-items: center; justify-content: center;
             padding: 20px; position: relative;
@@ -179,13 +142,6 @@
             overflow: hidden; border: 1px solid var(--border);
         }
         #imageCanvas { display: block; cursor: crosshair; }
-        .placeholder {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 500px; height: 340px; border: 2px dashed var(--border-light);
-            border-radius: var(--radius); color: var(--text-muted); font-size: 13px; gap: 10px;
-        }
-        .placeholder .icon { font-size: 40px; opacity: 0.5; }
-
         .spinner {
             display: none; position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%); z-index: 10;
@@ -198,14 +154,12 @@
         }
         .spinner-text { font-size: 11px; color: var(--text-secondary); }
         @keyframes spin { to { transform: rotate(360deg); } }
-
         kbd {
             display: inline-block; padding: 1px 5px; font-size: 10px;
             background: var(--bg-card); border: 1px solid var(--border-light);
             border-radius: 3px; color: var(--text-secondary); font-family: monospace;
         }
         .shortcuts { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 11px; color: var(--text-secondary); }
-
         .toast {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px);
             background: var(--bg-card); border: 1px solid var(--border-light);
@@ -213,8 +167,6 @@
             box-shadow: var(--shadow); z-index: 200; transition: transform 0.25s ease;
         }
         .toast.show { transform: translateX(-50%) translateY(0); }
-
-        /* Cursor hint */
         .cursor-hint {
             position: fixed; pointer-events: none; z-index: 50;
             font-size: 10px; font-weight: 600; padding: 2px 6px;
@@ -223,6 +175,118 @@
         }
         .cursor-hint.pos { background: var(--positive); }
         .cursor-hint.neg { background: var(--negative); }
+        .zoom-badge {
+            position: absolute; bottom: 16px; right: 16px; z-index: 20;
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(17,24,39,0.85); backdrop-filter: blur(8px);
+            border: 1px solid var(--border-light); border-radius: 8px;
+            padding: 6px 12px; font-size: 11px; font-weight: 500;
+            color: var(--text-secondary); user-select: none;
+        }
+        .zoom-badge .zoom-val { color: var(--text-primary); font-weight: 600; min-width: 38px; text-align: center; }
+        .zoom-reset {
+            background: none; border: 1px solid var(--border-light); border-radius: 4px;
+            color: var(--text-muted); font-size: 10px; padding: 2px 6px; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: all 0.15s;
+        }
+        .zoom-reset:hover { color: var(--accent); border-color: var(--accent); }
+
+        /* ── Batch view ──────────────────────────────────────────────────────── */
+        .batch-view {
+            flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column;
+            background: radial-gradient(circle at 50% 50%, rgba(59,130,246,0.03) 0%, transparent 70%), var(--bg-primary);
+        }
+        .batch-placeholder {
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; min-height: 280px;
+            color: var(--text-muted); font-size: 13px; gap: 10px;
+        }
+        .batch-placeholder .icon { font-size: 44px; opacity: 0.4; }
+        .batch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px; align-content: start;
+        }
+
+        /* ── Image cards ─────────────────────────────────────────────────────── */
+        .img-card {
+            background: var(--bg-secondary); border: 1px solid var(--border);
+            border-radius: var(--radius); overflow: hidden;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .img-card:hover { border-color: var(--border-light); }
+        .img-card.active-card { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+        .card-thumb {
+            position: relative; height: 150px; background: #000;
+            overflow: hidden; cursor: pointer;
+        }
+        .card-base-img, .card-overlay-img {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; object-fit: contain;
+        }
+        .card-refine-hint {
+            position: absolute; inset: 0;
+            background: rgba(59,130,246,0.18); backdrop-filter: blur(1px);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 13px; font-weight: 600;
+            opacity: 0; transition: opacity 0.2s; pointer-events: none;
+        }
+        .card-thumb:hover .card-refine-hint { opacity: 1; }
+        .card-spinner-wrap {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(10,14,23,0.55); z-index: 3;
+        }
+        .card-badge {
+            position: absolute; top: 6px; right: 6px; z-index: 4;
+            font-size: 9px; font-weight: 700; padding: 2px 7px;
+            border-radius: 4px; color: white; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-uploaded { background: rgba(100,116,139,0.85); }
+        .badge-segmenting { background: rgba(59,130,246,0.9); animation: badge-pulse 1s infinite; }
+        .badge-done { background: rgba(34,197,94,0.85); }
+        .badge-error { background: rgba(239,68,68,0.85); }
+        @keyframes badge-pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+        .card-body { padding: 10px 12px; }
+        .card-name {
+            font-size: 12px; font-weight: 500; color: var(--text-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px;
+        }
+        .card-meta { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
+        .card-actions { display: flex; gap: 5px; }
+
+        /* ── Sidebar image list ───────────────────────────────────────────────── */
+        .img-list { display: flex; flex-direction: column; gap: 3px; max-height: 210px; overflow-y: auto; }
+        .img-list-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 5px 8px; border-radius: 6px; background: var(--bg-card);
+            font-size: 11px; transition: background 0.15s; border: 1px solid transparent;
+        }
+        .img-list-item.clickable { cursor: pointer; }
+        .img-list-item.clickable:hover { background: var(--bg-hover); }
+        .img-list-item.active-item { border-color: var(--accent); background: rgba(59,130,246,0.1); }
+        .img-list-thumb {
+            width: 30px; height: 22px; border-radius: 3px; object-fit: cover;
+            flex-shrink: 0; background: #000;
+        }
+        .img-list-info { flex: 1; min-width: 0; }
+        .img-list-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); }
+        .img-list-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; display: flex; align-items: center; gap: 4px; }
+        .sdot {
+            display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+        }
+        .sdot-uploaded { background: var(--text-muted); }
+        .sdot-segmenting { background: var(--accent); animation: badge-pulse 1s infinite; }
+        .sdot-done { background: var(--positive); }
+        .sdot-error { background: var(--negative); }
+
+        /* ── Refine sidebar image info ───────────────────────────────────────── */
+        #refineImageName {
+            margin-top: 8px; font-size: 12px; font-weight: 500; color: var(--text-primary);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        #refineImageDims { margin-top: 2px; font-size: 11px; color: var(--text-muted); }
+        #batchProgressDiv { margin-top: 6px; font-size: 11px; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -230,232 +294,574 @@
 <div class="header">
     <div>
         <div class="header-title">SAM3 Segmentation</div>
-        <div class="header-sub">Text prompt → Draw boxes to refine</div>
+        <div class="header-sub">Batch prompt → Per-image polygon refine</div>
     </div>
     <div class="header-badge"><div class="dot"></div>Model loaded</div>
 </div>
 
 <div class="app">
+<!-- ── Sidebar ─────────────────────────────────────────────────────────────── -->
 <div class="sidebar">
-    <div class="steps">
-        <div class="step active" id="step1">① Upload</div>
-        <div class="step" id="step2">② Text</div>
-        <div class="step" id="step3">③ Refine</div>
-    </div>
 
-    <div class="section">
-        <h3>Upload Image</h3>
-        <div class="upload-zone" id="uploadZone">
-            <div class="upload-icon">📷</div>
-            <div class="upload-text"><strong>Click</strong> or drag & drop</div>
+    <!-- BATCH SIDEBAR -->
+    <div id="batchSidebar">
+        <div class="section">
+            <h3>Upload Images</h3>
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text"><strong>Click</strong> or drag & drop<br>
+                <small style="color:var(--text-muted);font-size:10px;">Multiple images supported</small></div>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" multiple hidden>
         </div>
-        <input type="file" id="fileInput" accept="image/*" hidden>
-        <div id="imageInfo"></div>
-    </div>
 
-    <div class="section">
-        <h3>Text Prompt</h3>
-        <div class="text-input-group">
-            <input class="text-input" id="textInput" type="text" placeholder="e.g. person, car, dog…" disabled>
-            <button class="btn btn-primary" id="segmentBtn" disabled>Segment</button>
+        <div class="section" id="imageListSection" style="display:none">
+            <h3>Images <span id="imgCount" style="color:var(--accent)"></span></h3>
+            <div id="imageList" class="img-list"></div>
         </div>
-        <div style="margin-top:8px; font-size:11px; color:var(--text-muted)">
-            Enter what to find, then draw boxes to correct.
-        </div>
-    </div>
 
-    <div class="section" id="objectsSection" style="display:none;">
-        <h3>Detected Objects <span id="objCount" style="color:var(--accent)"></span></h3>
-        <div id="objectsList" class="objects-list"></div>
-        <div style="margin-top:8px;">
-            <button class="btn btn-secondary btn-block" id="selectAllBtn">Select All</button>
+        <div class="section">
+            <h3>Text Prompt</h3>
+            <input class="text-input" id="textInput" type="text" placeholder="e.g. person, car, dog…" disabled style="width:100%; margin-bottom:8px;">
+            <button class="btn btn-primary btn-block" id="segmentAllBtn" disabled>⚡ Segment All</button>
+            <div id="batchProgressDiv" style="display:none">
+                Processing <span id="batchCur">0</span> / <span id="batchTotal">0</span>…
+            </div>
+            <div style="margin-top:6px; font-size:11px; color:var(--text-muted);">
+                Applies the prompt to all uploaded images.
+            </div>
         </div>
-    </div>
 
-    <div class="section" id="boxSection" style="display:none;">
-        <h3>Box Refinement <span id="boxCount" style="color:var(--accent)"></span></h3>
-        <div class="mode-toggle" style="margin-bottom:8px;">
-            <button class="mode-btn active pm" data-mode="1" id="modePos">✚ Include</button>
-            <button class="mode-btn nm" data-mode="0" id="modeNeg">✕ Exclude</button>
+        <div class="section">
+            <h3>Display</h3>
+            <div class="view-toggle">
+                <button class="view-btn active" data-view="overlay">Overlay</button>
+                <button class="view-btn" data-view="mask">Mask</button>
+                <button class="view-btn" data-view="blackout">Blackout</button>
+                <button class="view-btn" data-view="original">Original</button>
+            </div>
         </div>
-        <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">
-            Click & drag on image to draw a box
-        </div>
-        <div id="boxesList" class="boxes-list">
-            <div class="empty">Draw a box around the region to include or exclude</div>
-        </div>
-        <div class="btn-group" style="margin-top:8px;">
-            <button class="btn btn-secondary" id="undoBtn" disabled>↩ Undo</button>
-            <button class="btn btn-danger" id="clearBoxBtn" disabled>Clear boxes</button>
+
+        <div class="section">
+            <button class="btn btn-secondary btn-block" id="downloadAllBtn" disabled>⬇ Download All Results</button>
         </div>
     </div>
 
-    <div class="section" id="scoreSection" style="display:none;">
-        <div class="score-box">
-            <div class="score-val" id="scoreVal">—</div>
-            <div class="score-lbl">Confidence</div>
-            <div class="score-det" id="scoreDet"></div>
+    <!-- REFINE SIDEBAR -->
+    <div id="refineSidebar" style="display:none">
+        <div class="section">
+            <button class="btn btn-secondary btn-block" id="backBtn">← Back to Batch</button>
+            <div id="refineImageName"></div>
+            <div id="refineImageDims"></div>
         </div>
-    </div>
 
-    <div class="section">
-        <h3>Display</h3>
-        <div class="view-toggle">
-            <button class="view-btn active" data-view="overlay">Overlay</button>
-            <button class="view-btn" data-view="mask">Mask</button>
-            <button class="view-btn" data-view="blackout">Blackout</button>
-            <button class="view-btn" data-view="original">Original</button>
+        <div class="section">
+            <h3>Segment</h3>
+            <div class="text-input-group">
+                <input class="text-input" id="refineTextInput" type="text" placeholder="e.g. person, car…">
+                <button class="btn btn-primary" id="refineSegBtn">Go</button>
+            </div>
         </div>
-    </div>
 
-    <div class="section">
-        <button class="btn btn-primary btn-block" id="downloadBtn" disabled>💾 Download</button>
-    </div>
+        <div class="section" id="objectsSection" style="display:none">
+            <h3>Detected Objects <span id="objCount" style="color:var(--accent)"></span></h3>
+            <div id="objectsList" class="objects-list"></div>
+            <div style="margin-top:8px;">
+                <button class="btn btn-secondary btn-block" id="selectAllBtn">Select All</button>
+            </div>
+        </div>
 
-    <div class="section">
-        <h3>Shortcuts</h3>
-        <div class="shortcuts">
-            <kbd>Enter</kbd> <span>Run text segment</span>
-            <kbd>Drag</kbd> <span>Draw include box</span>
-            <kbd>Right-drag</kbd> <span>Draw exclude box</span>
-            <kbd>Ctrl+Z</kbd> <span>Undo last box</span>
-            <kbd>1 / 2</kbd> <span>Include / Exclude mode</span>
+        <div class="section" id="polySection">
+            <h3>Polygon Refinement</h3>
+            <div class="mode-toggle" style="margin-bottom:8px;">
+                <button class="mode-btn active pm" data-mode="1" id="modePos">✚ Include</button>
+                <button class="mode-btn nm" data-mode="0" id="modeNeg">✕ Exclude</button>
+            </div>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">
+                Click to place vertices. Double-click to close & fill.<br>
+                Right-click or <kbd>Esc</kbd> to cancel current polygon.
+            </div>
+            <div class="poly-count" id="polyCount"></div>
+            <div class="btn-group" style="margin-top:8px;">
+                <button class="btn btn-secondary" id="undoPolyBtn" disabled>↩ Undo last</button>
+                <button class="btn btn-danger" id="clearAllBtn" disabled>Clear all</button>
+            </div>
+        </div>
+
+        <div class="section" id="scoreSection" style="display:none">
+            <div class="score-box">
+                <div class="score-val" id="scoreVal">—</div>
+                <div class="score-lbl">Coverage</div>
+                <div class="score-det" id="scoreDet"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Display</h3>
+            <div class="view-toggle">
+                <button class="view-btn active" data-view="overlay">Overlay</button>
+                <button class="view-btn" data-view="mask">Mask</button>
+                <button class="view-btn" data-view="blackout">Blackout</button>
+                <button class="view-btn" data-view="original">Original</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="btn btn-primary btn-block" id="downloadBtn" disabled>💾 Download</button>
+        </div>
+
+        <div class="section">
+            <h3>Shortcuts</h3>
+            <div class="shortcuts">
+                <kbd>Enter</kbd> <span>Run segment</span>
+                <kbd>Click</kbd> <span>Place polygon vertex</span>
+                <kbd>Dbl-click</kbd> <span>Close polygon & fill</span>
+                <kbd>Esc / Right</kbd> <span>Cancel current polygon</span>
+                <kbd>Ctrl+Z</kbd> <span>Undo last polygon</span>
+                <kbd>1 / 2</kbd> <span>Include / Exclude mode</span>
+                <kbd>Scroll</kbd> <span>Zoom in / out</span>
+                <kbd>Mid-drag</kbd> <span>Pan view</span>
+                <kbd>0</kbd> <span>Reset zoom</span>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="canvas-area" id="canvasArea">
-    <div class="placeholder" id="placeholder">
+<!-- ── Batch view (main area default) ──────────────────────────────────────── -->
+<div class="batch-view" id="batchView">
+    <div class="batch-placeholder" id="placeholder">
         <div class="icon">🖼️</div>
-        <div>Upload an image to begin</div>
+        <div>Upload images to begin</div>
     </div>
-    <div class="canvas-wrapper" id="canvasWrapper" style="display:none;">
+    <div id="batchGrid" class="batch-grid" style="display:none;"></div>
+</div>
+
+<!-- ── Canvas (refine mode) ────────────────────────────────────────────────── -->
+<div class="canvas-area" id="canvasArea" style="display:none;">
+    <div class="canvas-wrapper" id="canvasWrapper">
         <canvas id="imageCanvas"></canvas>
         <div class="spinner" id="spinner">
             <div class="spinner-ring"></div>
             <div class="spinner-text" id="spinnerText">Segmenting…</div>
         </div>
     </div>
+    <div class="zoom-badge" id="zoomBadge" style="display:none;">
+        🔍 <span class="zoom-val" id="zoomVal">100%</span>
+        <button class="zoom-reset" id="zoomReset" title="Reset zoom (0)">Reset</button>
+    </div>
 </div>
-</div>
+</div><!-- .app -->
 
 <div class="cursor-hint" id="cursorHint" style="display:none;"></div>
 <div class="toast" id="toast"></div>
 
 <script>
+// ── State ──────────────────────────────────────────────────────────────────
 const S = {
+    images: [],        // array of image records
+    activeIdx: null,   // null = batch view, number = refine mode
+    view: "overlay",
+    // Active-image working state
     imageId: null, imgW: 0, imgH: 0, scale: 1,
-    textObjects: [], textCombinedOverlay: null, textCombinedMask: null, textCombinedBlackout: null,
-    boxMode: 1,         // 1=include, 0=exclude
-    boxes: [],          // [{x1, y1, x2, y2, label}]
-    boxOverlay: null, boxMask: null, boxBlackout: null, boxScore: null,
+    textObjects: [],
+    textCombinedOverlay: null, textCombinedMask: null, textCombinedBlackout: null,
     finalOverlay: null, finalMask: null, finalBlackout: null,
-    view: "overlay", phase: "upload",
-    drawing: false, drawStart: null,  // {x, y}
+    prePaintOverlay: null, prePaintMask: null, prePaintBlackout: null,
+    polyMode: 1,
+    polyVerts: [], polyHistory: [], hasPaintEdits: false,
+    zoom: 1, panX: 0, panY: 0,
+    panning: false, panStart: null, spaceHeld: false,
 };
 
 const canvas = document.getElementById("imageCanvas");
 const ctx = canvas.getContext("2d");
 let baseImage = null;
-
 const OBJ_COLORS = ["#3c8cff","#ff6347","#32cd32","#ffd700","#da70d6","#00ced1","#ff69b4","#7b68ee"];
+let paintCanvas = null, paintCtx = null;
 
-// ── Upload ──
+function makeImgRecord(id, name, width, height) {
+    return {
+        id, name, width, height,
+        status: "uploaded", errorMsg: null,
+        textObjects: [],
+        textCombinedOverlay: null, textCombinedMask: null, textCombinedBlackout: null,
+        finalOverlay: null, finalMask: null, finalBlackout: null,
+        prePaintOverlay: null, prePaintMask: null, prePaintBlackout: null,
+        polyHistory: [], hasPaintEdits: false,
+        paintData: null,  // saved ImageData when not active
+        combinedPixels: 0, totalPixels: 0,
+    };
+}
+
+// ── Paint canvas ───────────────────────────────────────────────────────────
+function initPaintCanvas() {
+    paintCanvas = document.createElement("canvas");
+    paintCanvas.width = S.imgW; paintCanvas.height = S.imgH;
+    paintCtx = paintCanvas.getContext("2d");
+    paintCtx.clearRect(0, 0, S.imgW, S.imgH);
+    S.hasPaintEdits = false;
+    S.polyHistory = [];
+    S.polyVerts = [];
+    document.getElementById("clearAllBtn").disabled = true;
+    document.getElementById("undoPolyBtn").disabled = true;
+    document.getElementById("polyCount").textContent = "";
+}
+
+// ── Upload ─────────────────────────────────────────────────────────────────
 const uploadZone = document.getElementById("uploadZone");
 const fileInput = document.getElementById("fileInput");
 uploadZone.addEventListener("click", () => fileInput.click());
 uploadZone.addEventListener("dragover", e => { e.preventDefault(); uploadZone.classList.add("dragging"); });
 uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragging"));
-uploadZone.addEventListener("drop", e => { e.preventDefault(); uploadZone.classList.remove("dragging"); if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
-fileInput.addEventListener("change", () => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
+uploadZone.addEventListener("drop", e => {
+    e.preventDefault(); uploadZone.classList.remove("dragging");
+    if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener("change", () => { if (fileInput.files.length) handleFiles(fileInput.files); fileInput.value = ""; });
 
-async function handleFile(file) {
-    if (!file.type.startsWith("image/")) { toast("Not an image"); return; }
-    const fd = new FormData(); fd.append("image", file);
-    toast("Uploading…");
-    const r = await fetch("/upload", { method: "POST", body: fd });
-    const d = await r.json();
-    if (d.error) { toast("Upload failed"); return; }
-    S.imageId = d.id; S.imgW = d.width; S.imgH = d.height;
-    resetState();
-    document.getElementById("imageInfo").style.display = "block";
-    document.getElementById("imageInfo").textContent = `${file.name} — ${d.width}×${d.height}`;
-    baseImage = new Image();
-    baseImage.onload = () => {
-        fitCanvas(); redraw();
-        document.getElementById("placeholder").style.display = "none";
-        document.getElementById("canvasWrapper").style.display = "block";
-        setPhase("text");
-        toast("Ready — enter text or draw boxes directly");
-    };
-    baseImage.src = `/uploads/${d.id}.png`;
+async function handleFiles(fileList) {
+    const files = [...fileList].filter(f => f.type.startsWith("image/"));
+    if (!files.length) { toast("No image files found"); return; }
+    toast(`Uploading ${files.length} image${files.length > 1 ? "s" : ""}…`);
+    for (const file of files) {
+        const fd = new FormData(); fd.append("image", file);
+        try {
+            const r = await fetch("/upload", { method: "POST", body: fd });
+            const d = await r.json();
+            if (d.error) { toast(`Failed: ${file.name}`); continue; }
+            S.images.push(makeImgRecord(d.id, file.name, d.width, d.height));
+        } catch(e) { toast(`Error: ${file.name}`); }
+        renderBatchGrid(); renderImageList();
+    }
+    document.getElementById("textInput").disabled = false;
+    document.getElementById("segmentAllBtn").disabled = false;
+    document.getElementById("imageListSection").style.display = "block";
+    document.getElementById("placeholder").style.display = "none";
+    document.getElementById("batchGrid").style.display = "grid";
+    updateBatchUI();
+    toast(`${S.images.length} image${S.images.length > 1 ? "s" : ""} ready — enter a text prompt`);
 }
 
-function resetState() {
-    S.textObjects = []; S.textCombinedOverlay = null; S.textCombinedMask = null; S.textCombinedBlackout = null;
-    S.boxes = []; S.boxOverlay = null; S.boxMask = null; S.boxBlackout = null; S.boxScore = null;
-    S.finalOverlay = null; S.finalMask = null; S.finalBlackout = null;
-    document.getElementById("objectsSection").style.display = "none";
-    document.getElementById("boxSection").style.display = "none";
-    document.getElementById("scoreSection").style.display = "none";
+// ── Batch grid ─────────────────────────────────────────────────────────────
+function renderBatchGrid() {
+    document.getElementById("batchGrid").innerHTML =
+        S.images.map((img, i) => makeCardHTML(img, i)).join("");
 }
 
-function fitCanvas() {
-    const a = document.getElementById("canvasArea");
-    S.scale = Math.min((a.clientWidth - 40) / S.imgW, (a.clientHeight - 40) / S.imgH, 1);
-    canvas.width = Math.round(S.imgW * S.scale);
-    canvas.height = Math.round(S.imgH * S.scale);
+function makeCardHTML(img, idx) {
+    const labels = { uploaded:"Ready", segmenting:"Segmenting…", done:"Done", error: img.errorMsg || "Error" };
+    const badges = { uploaded:"badge-uploaded", segmenting:"badge-segmenting", done:"badge-done", error:"badge-error" };
+    const isActive = S.activeIdx === idx;
+    const isDone = img.status === "done";
+
+    let overlayStyle = "display:none;", overlaySrc = "";
+    if (isDone && img.finalOverlay) {
+        if (S.view === "overlay" && img.finalOverlay) { overlayStyle = ""; overlaySrc = "data:image/png;base64," + img.finalOverlay; }
+        else if (S.view === "mask" && img.finalMask)  { overlayStyle = ""; overlaySrc = "data:image/png;base64," + img.finalMask; }
+        else if (S.view === "blackout" && img.finalBlackout) { overlayStyle = ""; overlaySrc = "data:image/png;base64," + img.finalBlackout; }
+    }
+    const baseStyle = (isDone && (S.view === "blackout" || S.view === "mask")) ? "display:none;" : "";
+    const coverage = (isDone && img.totalPixels)
+        ? ` · ${((img.combinedPixels / img.totalPixels) * 100).toFixed(1)}% covered` : "";
+
+    return `<div class="img-card${isActive ? " active-card" : ""}" id="card-${idx}">
+  <div class="card-thumb" onclick="openRefineOrToast(${idx})">
+    <img class="card-base-img" src="/uploads/${img.id}.png" style="${baseStyle}" alt="">
+    <img class="card-overlay-img" src="${overlaySrc}" style="${overlayStyle}" alt="">
+    ${img.status === "segmenting" ? `<div class="card-spinner-wrap"><div class="spinner-ring"></div></div>` : ""}
+    <div class="card-badge ${badges[img.status] || "badge-uploaded"}">${labels[img.status] || "Ready"}</div>
+    ${isDone ? `<div class="card-refine-hint">✏ Refine</div>` : ""}
+  </div>
+  <div class="card-body">
+    <div class="card-name" title="${img.name}">${img.name}</div>
+    <div class="card-meta">${img.width}×${img.height}${coverage}</div>
+    <div class="card-actions">
+      <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();segmentOne(${idx})">↻ Segment</button>
+      <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openRefineOrToast(${idx})"${!isDone ? " disabled" : ""}>✏ Refine</button>
+    </div>
+  </div>
+</div>`;
 }
 
-function setPhase(p) {
-    S.phase = p;
-    document.getElementById("step1").className = "step" + (p === "upload" ? " active" : " done");
-    document.getElementById("step2").className = "step" + (p === "text" ? " active" : (p === "refine" ? " done" : ""));
-    document.getElementById("step3").className = "step" + (p === "refine" ? " active" : "");
-    document.getElementById("textInput").disabled = (p === "upload");
-    document.getElementById("segmentBtn").disabled = (p === "upload");
-    document.getElementById("boxSection").style.display = (p === "refine" || p === "text") ? "block" : "none";
-    updateUI();
+function updateCard(idx) {
+    const card = document.getElementById(`card-${idx}`);
+    if (!card) return;
+    const tmp = document.createElement("div");
+    tmp.innerHTML = makeCardHTML(S.images[idx], idx);
+    card.replaceWith(tmp.firstElementChild);
 }
 
-// ── Text seg ──
-document.getElementById("segmentBtn").addEventListener("click", runTextSeg);
-document.getElementById("textInput").addEventListener("keydown", e => { if (e.key === "Enter") runTextSeg(); });
-
-async function runTextSeg() {
-    const text = document.getElementById("textInput").value.trim();
-    if (!text || !S.imageId) return;
-    showSpinner("Segmenting text…");
-    S.boxes = []; S.boxOverlay = null; S.boxMask = null; S.boxBlackout = null;
-    const r = await fetch("/segment_text", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image_id: S.imageId, text }),
+function updateBatchThumbnails() {
+    S.images.forEach((img, idx) => {
+        const card = document.getElementById(`card-${idx}`);
+        if (!card || !img.finalOverlay) return;
+        const baseImg = card.querySelector(".card-base-img");
+        const overlayImg = card.querySelector(".card-overlay-img");
+        if (!baseImg || !overlayImg) return;
+        const srcMap = { overlay: img.finalOverlay, mask: img.finalMask, blackout: img.finalBlackout };
+        const src = srcMap[S.view];
+        if (src && S.view !== "original") {
+            baseImg.style.display = (S.view === "blackout" || S.view === "mask") ? "none" : "";
+            overlayImg.src = "data:image/png;base64," + src;
+            overlayImg.style.display = "";
+        } else {
+            baseImg.style.display = "";
+            overlayImg.style.display = "none";
+        }
     });
-    const d = await r.json(); hideSpinner();
-    if (d.found === 0) { toast("No objects found — try different text"); return; }
-    S.textObjects = d.objects.map(o => ({ ...o, selected: true }));
-    S.textCombinedOverlay = d.combined_overlay;
-    S.textCombinedMask = d.combined_mask;
-    S.textCombinedBlackout = d.combined_blackout;
-    S.finalOverlay = d.combined_overlay;
-    S.finalMask = d.combined_mask;
-    S.finalBlackout = d.combined_blackout;
-    renderObjects(); setPhase("refine");
-    showScore(null, d.combined_pixels, d.total_pixels);
-    toast(`Found ${d.found} object(s) — draw boxes to refine`);
-    redrawWithOverlay(S.finalOverlay);
 }
 
+function updateBatchUI() {
+    const hasDone = S.images.some(img => img.status === "done");
+    document.getElementById("downloadAllBtn").disabled = !hasDone;
+    document.getElementById("imgCount").textContent = `(${S.images.length})`;
+    if (S.images.length > 0) {
+        document.getElementById("placeholder").style.display = "none";
+        document.getElementById("batchGrid").style.display = "grid";
+    }
+}
+
+// ── Image list (sidebar) ───────────────────────────────────────────────────
+function renderImageList() {
+    const dotClass = { uploaded:"sdot-uploaded", segmenting:"sdot-segmenting", done:"sdot-done", error:"sdot-error" };
+    const statusTxt = { uploaded:"Ready", segmenting:"Segmenting…", done:"Done", error:"Error" };
+    document.getElementById("imageList").innerHTML = S.images.map((img, i) => {
+        const isActive = S.activeIdx === i;
+        const clickable = img.status === "done";
+        return `<div class="img-list-item${clickable ? " clickable" : ""}${isActive ? " active-item" : ""}"
+                     ${clickable ? `onclick="openRefine(${i})"` : ""}>
+            <img class="img-list-thumb" src="/uploads/${img.id}.png" alt="">
+            <div class="img-list-info">
+                <div class="img-list-name">${img.name}</div>
+                <div class="img-list-sub">
+                    <span class="sdot ${dotClass[img.status] || "sdot-uploaded"}"></span>
+                    ${statusTxt[img.status] || "Ready"}
+                </div>
+            </div>
+        </div>`;
+    }).join("");
+    updateBatchUI();
+}
+
+// ── Batch segmentation ─────────────────────────────────────────────────────
+async function runBatchSeg() {
+    const text = document.getElementById("textInput").value.trim();
+    if (!text) { toast("Enter a text prompt first"); return; }
+    if (!S.images.length) return;
+    const btn = document.getElementById("segmentAllBtn");
+    btn.disabled = true;
+    document.getElementById("batchProgressDiv").style.display = "block";
+    document.getElementById("batchTotal").textContent = S.images.length;
+    for (let i = 0; i < S.images.length; i++) {
+        document.getElementById("batchCur").textContent = i + 1;
+        await segmentOne(i, text);
+    }
+    btn.disabled = false;
+    document.getElementById("batchProgressDiv").style.display = "none";
+    updateBatchUI();
+    toast("Batch segmentation complete");
+}
+
+async function segmentOne(idx, text) {
+    if (!text) text = document.getElementById("textInput").value.trim();
+    if (!text) { toast("Enter a text prompt first"); return; }
+    const img = S.images[idx];
+    if (!img.id) return;
+    img.status = "segmenting";
+    updateCard(idx); renderImageList();
+    try {
+        const r = await fetch("/segment_text", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image_id: img.id, text }),
+        });
+        const d = await r.json();
+        if (d.found === 0) {
+            img.status = "error"; img.errorMsg = "No objects found";
+        } else {
+            img.textObjects = d.objects.map(o => ({ ...o, selected: true }));
+            img.textCombinedOverlay = d.combined_overlay;
+            img.textCombinedMask    = d.combined_mask;
+            img.textCombinedBlackout = d.combined_blackout;
+            img.finalOverlay  = d.combined_overlay;
+            img.finalMask     = d.combined_mask;
+            img.finalBlackout = d.combined_blackout;
+            img.prePaintOverlay  = d.combined_overlay;
+            img.prePaintMask     = d.combined_mask;
+            img.prePaintBlackout = d.combined_blackout;
+            img.combinedPixels = d.combined_pixels;
+            img.totalPixels    = d.total_pixels;
+            img.status = "done"; img.errorMsg = null;
+        }
+    } catch(e) { img.status = "error"; img.errorMsg = "Request failed"; }
+    updateCard(idx); renderImageList();
+}
+
+// ── Refine mode ────────────────────────────────────────────────────────────
+function openRefineOrToast(idx) {
+    if (S.images[idx].status !== "done") { toast("Segment this image first"); return; }
+    openRefine(idx);
+}
+
+async function openRefine(idx) {
+    if (S.images[idx].status !== "done") { toast("Segment this image first"); return; }
+    if (S.activeIdx !== null) saveActiveState();
+    S.activeIdx = idx;
+    const img = S.images[idx];
+
+    // Load state into working S fields
+    S.imageId = img.id;
+    S.imgW = img.width; S.imgH = img.height;
+    S.textObjects = img.textObjects ? [...img.textObjects] : [];
+    S.textCombinedOverlay = img.textCombinedOverlay;
+    S.textCombinedMask    = img.textCombinedMask;
+    S.textCombinedBlackout = img.textCombinedBlackout;
+    S.finalOverlay  = img.finalOverlay;
+    S.finalMask     = img.finalMask;
+    S.finalBlackout = img.finalBlackout;
+    S.prePaintOverlay  = img.prePaintOverlay;
+    S.prePaintMask     = img.prePaintMask;
+    S.prePaintBlackout = img.prePaintBlackout;
+    S.polyVerts = [];
+
+    // Switch UI
+    document.getElementById("batchView").style.display = "none";
+    document.getElementById("canvasArea").style.display = "flex";
+    document.getElementById("batchSidebar").style.display = "none";
+    document.getElementById("refineSidebar").style.display = "";
+
+    // Fill refine sidebar info
+    document.getElementById("refineImageName").textContent = img.name;
+    document.getElementById("refineImageDims").textContent = `${img.width} × ${img.height} px`;
+    document.getElementById("refineTextInput").value = document.getElementById("textInput").value;
+
+    // Sync view buttons
+    document.querySelectorAll(".view-btn").forEach(b => b.classList.toggle("active", b.dataset.view === S.view));
+
+    // Load base image
+    baseImage = await new Promise(r => {
+        const i = new Image(); i.onload = () => r(i); i.src = `/uploads/${img.id}.png`;
+    });
+
+    // Init paint canvas then restore saved edits
+    initPaintCanvas();
+    if (img.paintData) {
+        paintCtx.putImageData(img.paintData, 0, 0);
+        S.hasPaintEdits = img.hasPaintEdits;
+        S.polyHistory   = img.polyHistory ? [...img.polyHistory] : [];
+        updatePolyUI();
+    }
+
+    fitCanvas(); resetZoom();
+    if (S.finalOverlay) await redrawWithOverlay(S.finalOverlay); else redraw();
+
+    // Sidebar sections
+    if (S.textObjects.length > 0) renderObjects();
+    else document.getElementById("objectsSection").style.display = "none";
+    document.getElementById("polySection").style.display = "block";
+    if (S.finalOverlay) {
+        showScore(null, img.combinedPixels, img.totalPixels);
+    } else {
+        document.getElementById("scoreSection").style.display = "none";
+    }
+    updateUI();
+    renderImageList();
+}
+
+function saveActiveState() {
+    if (S.activeIdx === null) return;
+    const img = S.images[S.activeIdx];
+    img.textObjects          = S.textObjects ? [...S.textObjects] : [];
+    img.textCombinedOverlay  = S.textCombinedOverlay;
+    img.textCombinedMask     = S.textCombinedMask;
+    img.textCombinedBlackout = S.textCombinedBlackout;
+    img.finalOverlay  = S.finalOverlay;
+    img.finalMask     = S.finalMask;
+    img.finalBlackout = S.finalBlackout;
+    img.prePaintOverlay  = S.prePaintOverlay;
+    img.prePaintMask     = S.prePaintMask;
+    img.prePaintBlackout = S.prePaintBlackout;
+    img.polyHistory  = [...S.polyHistory];
+    img.hasPaintEdits = S.hasPaintEdits;
+    if (paintCanvas && S.hasPaintEdits) {
+        img.paintData = paintCtx.getImageData(0, 0, S.imgW, S.imgH);
+    } else {
+        img.paintData = null;
+    }
+}
+
+function exitRefine() {
+    saveActiveState();
+    S.activeIdx = null;
+    S.polyVerts = [];
+    currentOverlayImg = null; currentMaskImg = null; currentBlackoutImg = null;
+    baseImage = null;
+    document.getElementById("canvasArea").style.display = "none";
+    document.getElementById("batchView").style.display = "flex";
+    document.getElementById("refineSidebar").style.display = "none";
+    document.getElementById("batchSidebar").style.display = "";
+    document.getElementById("cursorHint").style.display = "none";
+    updateZoomBadge();
+    renderBatchGrid(); renderImageList(); updateBatchUI();
+}
+
+// ── Per-image segmentation (in refine mode) ───────────────────────────────
+document.getElementById("refineSegBtn").addEventListener("click", runRefineSegment);
+document.getElementById("refineTextInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") runRefineSegment();
+});
+
+async function runRefineSegment() {
+    const text = document.getElementById("refineTextInput").value.trim();
+    if (!text || S.activeIdx === null) return;
+    const img = S.images[S.activeIdx];
+    showSpinner("Segmenting…");
+    try {
+        const r = await fetch("/segment_text", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image_id: img.id, text }),
+        });
+        const d = await r.json(); hideSpinner();
+        if (d.found === 0) { toast("No objects found — try different text"); return; }
+        S.textObjects = d.objects.map(o => ({ ...o, selected: true }));
+        S.textCombinedOverlay = d.combined_overlay;
+        S.textCombinedMask    = d.combined_mask;
+        S.textCombinedBlackout = d.combined_blackout;
+        S.finalOverlay  = d.combined_overlay;
+        S.finalMask     = d.combined_mask;
+        S.finalBlackout = d.combined_blackout;
+        S.prePaintOverlay  = d.combined_overlay;
+        S.prePaintMask     = d.combined_mask;
+        S.prePaintBlackout = d.combined_blackout;
+        initPaintCanvas();
+        renderObjects();
+        showScore(null, d.combined_pixels, d.total_pixels);
+        toast(`Found ${d.found} object(s) — draw polygons to refine`);
+        await redrawWithOverlay(S.finalOverlay);
+        updateUI();
+        // Sync back to image record
+        img.textObjects      = [...S.textObjects];
+        img.finalOverlay     = S.finalOverlay;
+        img.finalMask        = S.finalMask;
+        img.finalBlackout    = S.finalBlackout;
+        img.prePaintOverlay  = S.prePaintOverlay;
+        img.prePaintMask     = S.prePaintMask;
+        img.prePaintBlackout = S.prePaintBlackout;
+        img.combinedPixels   = d.combined_pixels;
+        img.totalPixels      = d.total_pixels;
+        img.status = "done";
+    } catch(e) { hideSpinner(); toast("Segmentation failed"); }
+}
+
+// ── Objects panel ─────────────────────────────────────────────────────────
 function renderObjects() {
     const sec = document.getElementById("objectsSection"); sec.style.display = "block";
     document.getElementById("objCount").textContent = `(${S.textObjects.length})`;
     document.getElementById("objectsList").innerHTML = S.textObjects.map((o, i) => `
-        <div class="object-chip ${o.selected ? 'selected' : ''}" onclick="toggleObj(${i})">
+        <div class="object-chip ${o.selected ? "selected" : ""}" onclick="toggleObj(${i})">
             <div class="obj-color" style="background:${OBJ_COLORS[i % OBJ_COLORS.length]}"></div>
             <div class="obj-info">Object ${i + 1}</div>
             <div class="obj-score">${o.score.toFixed(2)}</div>
-        </div>
-    `).join("");
+        </div>`).join("");
 }
 
 function toggleObj(idx) { S.textObjects[idx].selected = !S.textObjects[idx].selected; renderObjects(); rebuildTextMask(); }
@@ -481,125 +887,143 @@ async function rebuildTextMask() {
     let maskPx = 0;
     for (let i = 0; i < idata.data.length; i += 4) {
         if (idata.data[i] > 127) {
-            odata.data[i] = 60; odata.data[i+1] = 140; odata.data[i+2] = 255; odata.data[i+3] = 128;
-            bdata.data[i] = 0; bdata.data[i+1] = 0; bdata.data[i+2] = 0; maskPx++;
+            odata.data[i]=60; odata.data[i+1]=140; odata.data[i+2]=255; odata.data[i+3]=128;
+            bdata.data[i]=0; bdata.data[i+1]=0; bdata.data[i+2]=0; maskPx++;
         }
     }
     octx.putImageData(odata, 0, 0); bctx.putImageData(bdata, 0, 0);
     S.finalOverlay = canvasToB64(overlay); S.finalMask = canvasToB64(combined); S.finalBlackout = canvasToB64(bcanvas);
+    S.prePaintOverlay = S.finalOverlay; S.prePaintMask = S.finalMask; S.prePaintBlackout = S.finalBlackout;
     S.textCombinedMask = S.finalMask;
     showScore(null, maskPx, S.imgW * S.imgH);
-    redrawWithOverlay(S.finalOverlay); updateUI();
-}
-
-// ── Box drawing ──
-canvas.addEventListener("mousedown", e => {
-    if (!S.imageId || S.phase === "upload") return;
-    e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const x = Math.round((e.clientX - rect.left) / S.scale);
-    const y = Math.round((e.clientY - rect.top) / S.scale);
-    // Right click = negative
-    const label = e.button === 2 ? 0 : S.boxMode;
-    S.drawing = true;
-    S.drawStart = { x, y, label };
-});
-
-canvas.addEventListener("mousemove", e => {
-    // Cursor hint
-    const hint = document.getElementById("cursorHint");
-    if (S.imageId && S.phase !== "upload") {
-        hint.style.display = "block";
-        hint.style.left = e.clientX + "px";
-        hint.style.top = e.clientY + "px";
-        hint.className = "cursor-hint " + (S.boxMode === 1 ? "pos" : "neg");
-        hint.textContent = S.boxMode === 1 ? "Include" : "Exclude";
-    } else {
-        hint.style.display = "none";
-    }
-
-    if (!S.drawing) return;
-    const rect = canvas.getBoundingClientRect();
-    const mx = Math.round((e.clientX - rect.left) / S.scale);
-    const my = Math.round((e.clientY - rect.top) / S.scale);
-    redrawCurrent();
-    // Draw preview box
-    ctx.save();
-    ctx.scale(S.scale, S.scale);
-    const sx = S.drawStart.x, sy = S.drawStart.y;
-    const w = mx - sx, h = my - sy;
-    const isPos = S.drawStart.label === 1;
-    ctx.strokeStyle = isPos ? "#22c55e" : "#ef4444";
-    ctx.lineWidth = 2 / S.scale;
-    ctx.setLineDash([6 / S.scale, 4 / S.scale]);
-    ctx.strokeRect(sx, sy, w, h);
-    ctx.setLineDash([]);
-    ctx.fillStyle = isPos ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)";
-    ctx.fillRect(sx, sy, w, h);
-    ctx.restore();
-});
-
-canvas.addEventListener("mouseup", e => {
-    if (!S.drawing) return;
-    S.drawing = false;
-    const rect = canvas.getBoundingClientRect();
-    const mx = Math.round((e.clientX - rect.left) / S.scale);
-    const my = Math.round((e.clientY - rect.top) / S.scale);
-    const sx = S.drawStart.x, sy = S.drawStart.y;
-
-    // Minimum box size check (ignore tiny accidental clicks)
-    const bw = Math.abs(mx - sx), bh = Math.abs(my - sy);
-    if (bw < 5 && bh < 5) { redrawCurrent(); return; }
-
-    const box = {
-        x1: Math.min(sx, mx), y1: Math.min(sy, my),
-        x2: Math.max(sx, mx), y2: Math.max(sy, my),
-        label: S.drawStart.label,
-    };
-    S.boxes.push(box);
-    if (S.phase === "text") setPhase("refine");
-    runBoxSeg();
-});
-
-canvas.addEventListener("mouseleave", () => {
-    document.getElementById("cursorHint").style.display = "none";
-    if (S.drawing) { S.drawing = false; redrawCurrent(); }
-});
-
-canvas.addEventListener("contextmenu", e => e.preventDefault());
-
-async function runBoxSeg() {
-    if (S.boxes.length === 0) return;
-    showSpinner("Refining…"); updateUI();
-    const r = await fetch("/segment_boxes", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image_id: S.imageId, boxes: S.boxes }),
-    });
-    const d = await r.json(); hideSpinner();
-    if (d.error && !d.overlay) { toast("Error: " + d.error); updateUI(); return; }
-    S.boxOverlay = d.overlay; S.boxMask = d.mask; S.boxBlackout = d.blackout; S.boxScore = d.score;
-
-    if (S.textCombinedMask) { await combineMasks(); }
-    else {
-        S.finalOverlay = d.overlay; S.finalMask = d.mask; S.finalBlackout = d.blackout;
-        showScore(d.score, d.mask_pixels, d.total_pixels);
-        redrawWithOverlay(S.finalOverlay);
-    }
+    if (S.hasPaintEdits) await applyManualEdits(); else redrawWithOverlay(S.finalOverlay);
     updateUI();
 }
 
-async function combineMasks() {
-    const textMaskImg = await loadImgB64(S.textCombinedMask);
-    const boxMaskImg = await loadImgB64(S.boxMask);
+// ── Polygon interaction ────────────────────────────────────────────────────
+function getCanvasCoords(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: Math.round(((e.clientX - rect.left) - S.panX) / (S.scale * S.zoom)),
+        y: Math.round(((e.clientY - rect.top) - S.panY) / (S.scale * S.zoom)),
+    };
+}
+
+canvas.addEventListener("click", e => {
+    if (S.activeIdx === null || S.panning || S.spaceHeld) return;
+    e.preventDefault();
+    const { x, y } = getCanvasCoords(e);
+    if (S.polyVerts.length >= 3) {
+        const first = S.polyVerts[0];
+        if (Math.hypot(x - first.x, y - first.y) < 12 / (S.scale * S.zoom)) { closePolygon(); return; }
+    }
+    S.polyVerts.push({ x, y }); redrawCurrent();
+});
+
+canvas.addEventListener("dblclick", e => {
+    if (S.activeIdx === null) return;
+    e.preventDefault();
+    if (S.polyVerts.length >= 3) closePolygon();
+});
+
+canvas.addEventListener("mousedown", e => {
+    if (!baseImage) return;
+    if (e.button === 1 || (S.spaceHeld && e.button === 0)) {
+        e.preventDefault();
+        S.panning = true;
+        S.panStart = { x: e.clientX - S.panX, y: e.clientY - S.panY };
+        canvas.style.cursor = "grabbing";
+    }
+});
+
+canvas.addEventListener("mousemove", e => {
+    if (S.panning && S.panStart) {
+        S.panX = e.clientX - S.panStart.x;
+        S.panY = e.clientY - S.panStart.y;
+        redrawCurrent(); return;
+    }
+    const hint = document.getElementById("cursorHint");
+    if (S.activeIdx !== null && !S.spaceHeld) {
+        hint.style.display = "block";
+        hint.style.left = e.clientX + "px"; hint.style.top = e.clientY + "px";
+        hint.className = "cursor-hint " + (S.polyMode === 1 ? "pos" : "neg");
+        hint.textContent = S.polyVerts.length === 0 ? (S.polyMode === 1 ? "Include" : "Exclude") : `${S.polyVerts.length} pts`;
+    } else { hint.style.display = "none"; }
+    if (S.polyVerts.length > 0 && !S.spaceHeld) {
+        const { x, y } = getCanvasCoords(e);
+        redrawCurrent();
+        const es = S.scale * S.zoom;
+        ctx.save(); ctx.translate(S.panX, S.panY); ctx.scale(es, es);
+        const last = S.polyVerts[S.polyVerts.length - 1];
+        const isPos = S.polyMode === 1;
+        ctx.strokeStyle = isPos ? "rgba(34,197,94,0.5)" : "rgba(239,68,68,0.5)";
+        ctx.lineWidth = 1.5 / es; ctx.setLineDash([6/es, 4/es]);
+        ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(x, y); ctx.stroke();
+        ctx.setLineDash([]);
+        if (S.polyVerts.length >= 3) {
+            const first = S.polyVerts[0];
+            ctx.strokeStyle = isPos ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)";
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(first.x, first.y); ctx.stroke();
+        }
+        ctx.restore();
+    }
+});
+
+canvas.addEventListener("mouseup", () => {
+    if (S.panning) { S.panning = false; S.panStart = null; canvas.style.cursor = S.spaceHeld ? "grab" : "crosshair"; }
+});
+canvas.addEventListener("mouseleave", () => {
+    document.getElementById("cursorHint").style.display = "none";
+    if (S.panning) { S.panning = false; S.panStart = null; canvas.style.cursor = "crosshair"; }
+});
+canvas.addEventListener("contextmenu", e => { e.preventDefault(); cancelPolygon(); });
+
+// ── Zoom ───────────────────────────────────────────────────────────────────
+canvas.addEventListener("wheel", e => {
+    if (!baseImage) return; e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const oldZoom = S.zoom;
+    S.zoom = Math.max(0.5, Math.min(20, S.zoom * (e.deltaY < 0 ? 1.15 : 1/1.15)));
+    const ratio = S.zoom / oldZoom;
+    S.panX = mx - ratio * (mx - S.panX);
+    S.panY = my - ratio * (my - S.panY);
+    updateZoomBadge(); redrawCurrent();
+}, { passive: false });
+
+function cancelPolygon() { S.polyVerts = []; redrawCurrent(); }
+
+function closePolygon() {
+    if (S.polyVerts.length < 3) { cancelPolygon(); return; }
+    const mode = S.polyMode, verts = [...S.polyVerts];
+    if (!paintCanvas) initPaintCanvas();
+    paintCtx.globalCompositeOperation = "source-over";
+    paintCtx.fillStyle = mode === 1 ? "white" : "black";
+    paintCtx.beginPath(); paintCtx.moveTo(verts[0].x, verts[0].y);
+    for (let i = 1; i < verts.length; i++) paintCtx.lineTo(verts[i].x, verts[i].y);
+    paintCtx.closePath(); paintCtx.fill();
+    S.hasPaintEdits = true;
+    S.polyHistory.push({ verts, mode });
+    S.polyVerts = [];
+    applyManualEdits(); updatePolyUI();
+}
+
+function updatePolyUI() {
+    const n = S.polyHistory.length;
+    document.getElementById("undoPolyBtn").disabled = n === 0;
+    document.getElementById("clearAllBtn").disabled = n === 0 && !S.hasPaintEdits;
+    document.getElementById("polyCount").textContent = n > 0 ? `${n} polygon${n > 1 ? "s" : ""} drawn` : "";
+}
+
+async function applyManualEdits() {
+    if (!paintCanvas) return;
+    const baseMask = S.prePaintMask || S.finalMask;
+    if (!baseMask && !S.hasPaintEdits) return;
     const c = document.createElement("canvas"); c.width = S.imgW; c.height = S.imgH;
     const cx = c.getContext("2d");
-    cx.drawImage(textMaskImg, 0, 0); const textData = cx.getImageData(0, 0, S.imgW, S.imgH);
-    cx.clearRect(0, 0, S.imgW, S.imgH);
-    cx.drawImage(boxMaskImg, 0, 0); const boxData = cx.getImageData(0, 0, S.imgW, S.imgH);
-
-    const hasPos = S.boxes.some(b => b.label === 1);
-    const hasNeg = S.boxes.some(b => b.label === 0);
-
+    if (baseMask) { const bi = await loadImgB64(baseMask); cx.drawImage(bi, 0, 0); }
+    const baseData  = cx.getImageData(0, 0, S.imgW, S.imgH);
+    const paintData = paintCtx.getImageData(0, 0, S.imgW, S.imgH);
     const overlay = document.createElement("canvas"); overlay.width = S.imgW; overlay.height = S.imgH;
     const octx = overlay.getContext("2d"); const odata = octx.createImageData(S.imgW, S.imgH);
     const bcanvas = document.createElement("canvas"); bcanvas.width = S.imgW; bcanvas.height = S.imgH;
@@ -608,13 +1032,12 @@ async function combineMasks() {
     const mcanvas = document.createElement("canvas"); mcanvas.width = S.imgW; mcanvas.height = S.imgH;
     const mctx = mcanvas.getContext("2d"); const mdata = mctx.createImageData(S.imgW, S.imgH);
     let maskPx = 0;
-    for (let i = 0; i < textData.data.length; i += 4) {
-        const tM = textData.data[i] > 127, bM = boxData.data[i] > 127;
-        let f;
-        if (hasPos && !hasNeg) f = tM || bM;
-        else if (hasNeg && !hasPos) f = tM && !bM;
-        else f = tM || bM;
-        if (f) {
+    for (let i = 0; i < baseData.data.length; i += 4) {
+        const baseMasked = baseData.data[i] > 127;
+        const paintA = paintData.data[i+3];
+        let isMasked = baseMasked;
+        if (paintA > 10) isMasked = paintData.data[i] > 127;
+        if (isMasked) {
             odata.data[i]=60; odata.data[i+1]=140; odata.data[i+2]=255; odata.data[i+3]=128;
             bdata.data[i]=0; bdata.data[i+1]=0; bdata.data[i+2]=0;
             mdata.data[i]=255; mdata.data[i+1]=255; mdata.data[i+2]=255; mdata.data[i+3]=255;
@@ -623,28 +1046,56 @@ async function combineMasks() {
     }
     octx.putImageData(odata, 0, 0); bctx.putImageData(bdata, 0, 0); mctx.putImageData(mdata, 0, 0);
     S.finalOverlay = canvasToB64(overlay); S.finalMask = canvasToB64(mcanvas); S.finalBlackout = canvasToB64(bcanvas);
-    showScore(S.boxScore, maskPx, S.imgW * S.imgH);
-    redrawWithOverlay(S.finalOverlay);
+    showScore(null, maskPx, S.imgW * S.imgH);
+    redrawWithOverlay(S.finalOverlay); updateUI();
+    // Keep image record in sync so the card thumbnail is current after going back
+    if (S.activeIdx !== null) {
+        const img = S.images[S.activeIdx];
+        img.finalOverlay = S.finalOverlay; img.finalMask = S.finalMask; img.finalBlackout = S.finalBlackout;
+        img.combinedPixels = maskPx; img.totalPixels = S.imgW * S.imgH;
+    }
 }
 
-// ── Drawing ──
-let currentOverlayImg = null;
+async function undoLastPoly() {
+    if (S.polyHistory.length === 0) return;
+    S.polyHistory.pop();
+    paintCtx.clearRect(0, 0, S.imgW, S.imgH);
+    for (const p of S.polyHistory) {
+        paintCtx.globalCompositeOperation = "source-over";
+        paintCtx.fillStyle = p.mode === 1 ? "white" : "black";
+        paintCtx.beginPath(); paintCtx.moveTo(p.verts[0].x, p.verts[0].y);
+        for (let i = 1; i < p.verts.length; i++) paintCtx.lineTo(p.verts[i].x, p.verts[i].y);
+        paintCtx.closePath(); paintCtx.fill();
+    }
+    S.hasPaintEdits = S.polyHistory.length > 0;
+    if (S.hasPaintEdits) { await applyManualEdits(); }
+    else {
+        if (S.prePaintOverlay) {
+            S.finalOverlay = S.prePaintOverlay; S.finalMask = S.prePaintMask; S.finalBlackout = S.prePaintBlackout;
+            redrawWithOverlay(S.finalOverlay);
+        } else { S.finalOverlay = null; S.finalMask = null; S.finalBlackout = null; redraw(); }
+    }
+    updatePolyUI(); updateUI();
+}
+
+// ── Drawing ────────────────────────────────────────────────────────────────
+let currentOverlayImg = null, currentMaskImg = null, currentBlackoutImg = null;
+
+function applyZoomTransform() { ctx.translate(S.panX, S.panY); ctx.scale(S.scale * S.zoom, S.scale * S.zoom); }
 
 function redraw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save(); ctx.scale(S.scale, S.scale);
+    ctx.save(); applyZoomTransform();
     if (baseImage) ctx.drawImage(baseImage, 0, 0);
     if (S.view === "overlay" && currentOverlayImg) ctx.drawImage(currentOverlayImg, 0, 0);
-    drawBoxes(); ctx.restore();
+    drawPolyPreview(); ctx.restore();
 }
 
-function redrawCurrent() {
-    if (S.finalOverlay) redrawWithOverlaySync(); else redraw();
-}
+function redrawCurrent() { if (S.finalOverlay) redrawWithOverlaySync(); else redraw(); }
 
 function redrawWithOverlaySync() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save(); ctx.scale(S.scale, S.scale);
+    ctx.save(); applyZoomTransform();
     if (S.view === "blackout" && S.finalBlackout && currentBlackoutImg) {
         ctx.drawImage(currentBlackoutImg, 0, 0);
     } else if (S.view === "mask" && S.finalMask && currentMaskImg) {
@@ -654,125 +1105,162 @@ function redrawWithOverlaySync() {
         if (baseImage) ctx.drawImage(baseImage, 0, 0);
         if (S.view === "overlay" && currentOverlayImg) ctx.drawImage(currentOverlayImg, 0, 0);
     }
-    drawBoxes(); ctx.restore();
+    drawPolyPreview(); ctx.restore();
 }
-
-let currentMaskImg = null, currentBlackoutImg = null;
 
 async function redrawWithOverlay(overlayB64) {
     if (!overlayB64) { currentOverlayImg = null; currentMaskImg = null; currentBlackoutImg = null; redraw(); return; }
     currentOverlayImg = await loadImgB64(overlayB64);
-    if (S.finalMask) currentMaskImg = await loadImgB64(S.finalMask);
+    if (S.finalMask)     currentMaskImg     = await loadImgB64(S.finalMask);
     if (S.finalBlackout) currentBlackoutImg = await loadImgB64(S.finalBlackout);
     redrawWithOverlaySync();
 }
 
-function drawBoxes() {
-    for (const b of S.boxes) {
-        const isPos = b.label === 1;
-        ctx.strokeStyle = isPos ? "#22c55e" : "#ef4444";
-        ctx.lineWidth = 2 / S.scale;
-        ctx.strokeRect(b.x1, b.y1, b.x2 - b.x1, b.y2 - b.y1);
-        // Label
-        ctx.font = `bold ${Math.max(10, 10/S.scale)}px Inter, sans-serif`;
-        ctx.fillStyle = isPos ? "#22c55e" : "#ef4444";
-        ctx.fillText(isPos ? "+" : "−", b.x1 + 4/S.scale, b.y1 + 14/S.scale);
+function drawPolyPreview() {
+    if (S.polyVerts.length === 0) return;
+    const isPos = S.polyMode === 1;
+    const color = isPos ? "#22c55e" : "#ef4444";
+    const es = S.scale * S.zoom;
+    if (S.polyVerts.length >= 3) {
+        ctx.fillStyle = isPos ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)";
+        ctx.beginPath(); ctx.moveTo(S.polyVerts[0].x, S.polyVerts[0].y);
+        for (let i = 1; i < S.polyVerts.length; i++) ctx.lineTo(S.polyVerts[i].x, S.polyVerts[i].y);
+        ctx.closePath(); ctx.fill();
+    }
+    ctx.strokeStyle = color; ctx.lineWidth = 2 / es;
+    ctx.beginPath(); ctx.moveTo(S.polyVerts[0].x, S.polyVerts[0].y);
+    for (let i = 1; i < S.polyVerts.length; i++) ctx.lineTo(S.polyVerts[i].x, S.polyVerts[i].y);
+    ctx.stroke();
+    const dotR = Math.max(3, 4 / es);
+    for (let i = 0; i < S.polyVerts.length; i++) {
+        ctx.beginPath(); ctx.arc(S.polyVerts[i].x, S.polyVerts[i].y, dotR, 0, Math.PI * 2);
+        ctx.fillStyle = i === 0 ? "white" : color; ctx.fill();
+        ctx.strokeStyle = color; ctx.lineWidth = 1.5 / es; ctx.stroke();
     }
 }
 
-// ── UI ──
+// ── Canvas fit & zoom ──────────────────────────────────────────────────────
+function fitCanvas() {
+    const a = document.getElementById("canvasArea");
+    S.scale = Math.min((a.clientWidth - 40) / S.imgW, (a.clientHeight - 40) / S.imgH, 1);
+    canvas.width  = Math.round(S.imgW * S.scale);
+    canvas.height = Math.round(S.imgH * S.scale);
+    resetZoom();
+}
+function resetZoom() { S.zoom = 1; S.panX = 0; S.panY = 0; updateZoomBadge(); }
+function updateZoomBadge() {
+    const badge = document.getElementById("zoomBadge");
+    if (S.activeIdx === null) { badge.style.display = "none"; return; }
+    badge.style.display = "flex";
+    document.getElementById("zoomVal").textContent = Math.round(S.zoom * 100) + "%";
+}
+
+// ── UI helpers ─────────────────────────────────────────────────────────────
 function showScore(score, px, total) {
     document.getElementById("scoreSection").style.display = "block";
     document.getElementById("scoreVal").textContent = score ? score.toFixed(3) : "—";
-    const pct = ((px / total) * 100).toFixed(1);
+    const pct = total ? ((px / total) * 100).toFixed(1) : "0";
     document.getElementById("scoreDet").textContent = `${px.toLocaleString()} / ${total.toLocaleString()} px (${pct}%)`;
 }
-
 function updateUI() {
-    const hasBoxes = S.boxes.length > 0;
-    document.getElementById("undoBtn").disabled = !hasBoxes;
-    document.getElementById("clearBoxBtn").disabled = !hasBoxes;
     document.getElementById("downloadBtn").disabled = !S.finalOverlay;
-    document.getElementById("boxCount").textContent = hasBoxes ? `(${S.boxes.length})` : "";
+    updatePolyUI();
+}
 
-    const list = document.getElementById("boxesList");
-    if (!hasBoxes) {
-        list.innerHTML = '<div class="empty">Draw a box around the region to include or exclude</div>';
+// ── View toggle (shared across both sidebars) ──────────────────────────────
+function setView(v) {
+    S.view = v;
+    document.querySelectorAll(".view-btn").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+    if (S.activeIdx !== null) {
+        if (S.finalOverlay) redrawWithOverlay(S.finalOverlay); else redraw();
     } else {
-        list.innerHTML = S.boxes.map((b, i) => `
-            <div class="box-item">
-                <div class="box-dot ${b.label===1?'pos':'neg'}"></div>
-                <span class="box-coords">[${b.x1},${b.y1}]→[${b.x2},${b.y2}]</span>
-                <button class="box-rm" onclick="removeBox(${i})">×</button>
-            </div>
-        `).join("");
+        updateBatchThumbnails();
     }
 }
+document.querySelectorAll(".view-btn").forEach(btn => btn.addEventListener("click", () => setView(btn.dataset.view)));
 
-function removeBox(idx) {
-    S.boxes.splice(idx, 1);
-    if (S.boxes.length > 0) { runBoxSeg(); }
-    else {
-        S.boxOverlay = null; S.boxMask = null; S.boxBlackout = null;
-        if (S.textCombinedOverlay) {
-            S.finalOverlay = S.textCombinedOverlay; S.finalMask = S.textCombinedMask; S.finalBlackout = S.textCombinedBlackout;
-            redrawWithOverlay(S.finalOverlay);
-        } else { S.finalOverlay = null; S.finalMask = null; S.finalBlackout = null; redraw(); }
-    }
-    updateUI();
-}
-
-// ── Buttons ──
-document.getElementById("undoBtn").addEventListener("click", () => removeBox(S.boxes.length - 1));
-document.getElementById("clearBoxBtn").addEventListener("click", () => {
-    S.boxes = []; S.boxOverlay = null; S.boxMask = null; S.boxBlackout = null;
-    if (S.textCombinedOverlay) {
-        S.finalOverlay = S.textCombinedOverlay; S.finalMask = S.textCombinedMask; S.finalBlackout = S.textCombinedBlackout;
+// ── Buttons ────────────────────────────────────────────────────────────────
+document.getElementById("backBtn").addEventListener("click", exitRefine);
+document.getElementById("segmentAllBtn").addEventListener("click", runBatchSeg);
+document.getElementById("textInput").addEventListener("keydown", e => { if (e.key === "Enter") runBatchSeg(); });
+document.getElementById("undoPolyBtn").addEventListener("click", () => undoLastPoly());
+document.getElementById("clearAllBtn").addEventListener("click", () => {
+    initPaintCanvas();
+    if (S.prePaintOverlay) {
+        S.finalOverlay = S.prePaintOverlay; S.finalMask = S.prePaintMask; S.finalBlackout = S.prePaintBlackout;
         redrawWithOverlay(S.finalOverlay);
-    } else { S.finalOverlay = null; S.finalMask = null; S.finalBlackout = null; document.getElementById("scoreSection").style.display = "none"; redraw(); }
-    updateUI();
+    } else {
+        S.finalOverlay = null; S.finalMask = null; S.finalBlackout = null;
+        document.getElementById("scoreSection").style.display = "none"; redraw();
+    }
+    updateUI(); toast("All manual edits cleared");
 });
-
 document.querySelectorAll(".mode-btn").forEach(btn => btn.addEventListener("click", () => {
-    S.boxMode = parseInt(btn.dataset.mode);
+    S.polyMode = parseInt(btn.dataset.mode);
     document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
 }));
+document.getElementById("zoomReset").addEventListener("click", () => { resetZoom(); redrawCurrent(); });
 
-document.querySelectorAll(".view-btn").forEach(btn => btn.addEventListener("click", () => {
-    S.view = btn.dataset.view;
-    document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    if (S.finalOverlay) redrawWithOverlay(S.finalOverlay); else redraw();
-}));
-
-// ── Download ──
+// ── Download ───────────────────────────────────────────────────────────────
 document.getElementById("downloadBtn").addEventListener("click", async () => {
+    if (S.activeIdx === null || !S.finalOverlay) return;
+    const img = S.images[S.activeIdx];
+    const baseName = img.name.replace(/\.[^.]+$/, "");
     const c = document.createElement("canvas"); c.width = S.imgW; c.height = S.imgH;
     const cx = c.getContext("2d"); cx.drawImage(baseImage, 0, 0);
-    if (S.finalOverlay) { const oi = await loadImgB64(S.finalOverlay); cx.drawImage(oi, 0, 0); }
-    downloadDataUrl(c.toDataURL("image/png"), "sam3_overlay.png");
-    if (S.finalMask) downloadDataUrl("data:image/png;base64," + S.finalMask, "sam3_mask.png");
-    if (S.finalBlackout) downloadDataUrl("data:image/png;base64," + S.finalBlackout, "sam3_blackout.png");
+    const oi = await loadImgB64(S.finalOverlay); cx.drawImage(oi, 0, 0);
+    downloadDataUrl(c.toDataURL("image/png"), `${baseName}_overlay.png`);
+    if (S.finalMask)     downloadDataUrl("data:image/png;base64," + S.finalMask,     `${baseName}_mask.png`);
+    if (S.finalBlackout) downloadDataUrl("data:image/png;base64," + S.finalBlackout, `${baseName}_blackout.png`);
     toast("Downloaded overlay, mask & blackout");
 });
-function downloadDataUrl(url, name) { const a = document.createElement("a"); a.href = url; a.download = name; a.click(); }
 
-// ── Keyboard ──
-document.addEventListener("keydown", e => {
-    if (e.target.tagName === "INPUT") return;
-    if (e.key === "1") { S.boxMode = 1; document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("active")); document.getElementById("modePos").classList.add("active"); }
-    if (e.key === "2") { S.boxMode = 0; document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("active")); document.getElementById("modeNeg").classList.add("active"); }
-    if ((e.ctrlKey||e.metaKey) && e.key === "z") { e.preventDefault(); if (S.boxes.length) removeBox(S.boxes.length-1); }
+document.getElementById("downloadAllBtn").addEventListener("click", async () => {
+    const done = S.images.filter(img => img.finalOverlay);
+    if (!done.length) { toast("No segmented images to download"); return; }
+    for (const img of done) {
+        await downloadImageResults(img);
+        await new Promise(r => setTimeout(r, 120));
+    }
+    toast(`Downloaded ${done.length} image${done.length > 1 ? "s" : ""}`);
 });
 
-// ── Utils ──
+async function downloadImageResults(img) {
+    const baseName = img.name.replace(/\.[^.]+$/, "");
+    const c = document.createElement("canvas"); c.width = img.width; c.height = img.height;
+    const cx = c.getContext("2d");
+    const base = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = `/uploads/${img.id}.png`; });
+    cx.drawImage(base, 0, 0);
+    const ov = await loadImgB64(img.finalOverlay); cx.drawImage(ov, 0, 0);
+    downloadDataUrl(c.toDataURL("image/png"), `${baseName}_overlay.png`);
+    if (img.finalMask)     downloadDataUrl("data:image/png;base64," + img.finalMask,     `${baseName}_mask.png`);
+    if (img.finalBlackout) downloadDataUrl("data:image/png;base64," + img.finalBlackout, `${baseName}_blackout.png`);
+}
+
+// ── Keyboard ───────────────────────────────────────────────────────────────
+document.addEventListener("keydown", e => {
+    if (e.target.tagName === "INPUT") return;
+    if (S.activeIdx === null) return;
+    if (e.key === "1") { S.polyMode = 1; document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("active")); document.getElementById("modePos").classList.add("active"); }
+    if (e.key === "2") { S.polyMode = 0; document.querySelectorAll(".mode-btn").forEach(b=>b.classList.remove("active")); document.getElementById("modeNeg").classList.add("active"); }
+    if (e.key === "Escape") cancelPolygon();
+    if ((e.ctrlKey||e.metaKey) && e.key === "z") { e.preventDefault(); undoLastPoly(); }
+    if (e.key === "0") { resetZoom(); redrawCurrent(); }
+    if (e.key === " ") { e.preventDefault(); S.spaceHeld = true; canvas.style.cursor = "grab"; }
+});
+document.addEventListener("keyup", e => {
+    if (e.key === " ") { S.spaceHeld = false; if (!S.panning) canvas.style.cursor = "crosshair"; }
+});
+
+// ── Utils ──────────────────────────────────────────────────────────────────
 function loadImgB64(b64) { return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = "data:image/png;base64," + b64; }); }
 function canvasToB64(c) { return c.toDataURL("image/png").replace("data:image/png;base64,", ""); }
 function showSpinner(t) { document.getElementById("spinner").classList.add("on"); document.getElementById("spinnerText").textContent = t||"Processing…"; }
 function hideSpinner() { document.getElementById("spinner").classList.remove("on"); }
-function toast(m) { const t = document.getElementById("toast"); t.textContent = m; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2500); }
-window.addEventListener("resize", () => { if (baseImage) { fitCanvas(); if (S.finalOverlay) redrawWithOverlay(S.finalOverlay); else redraw(); } });
+function toast(m) { const t = document.getElementById("toast"); t.textContent = m; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2800); }
+function downloadDataUrl(url, name) { const a = document.createElement("a"); a.href = url; a.download = name; a.click(); }
+window.addEventListener("resize", () => { if (S.activeIdx !== null && baseImage) { fitCanvas(); if (S.finalOverlay) redrawWithOverlay(S.finalOverlay); else redraw(); } });
 </script>
 </body>
 </html>

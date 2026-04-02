@@ -247,10 +247,31 @@ def segment_boxes():
             score=0, mask_pixels=0, total_pixels=0,
         )
 
-    # Pick the mask with highest score
-    best_idx = scores_t.argmax().item()
-    best_mask = masks[best_idx].cpu().numpy().astype(bool)
-    best_score = float(scores_t[best_idx])
+    # Combine masks: Union positive labels, subtract negative labels
+    W, H = image.size
+    best_mask = np.zeros((H, W), dtype=bool)
+    
+    pos_scores = []
+    
+    for i, label in enumerate(labels):
+        m = masks[i].cpu().numpy().astype(bool)
+        if label == 1:
+            best_mask = best_mask | m
+            pos_scores.append(float(scores_t[i]))
+        elif label == 0:
+            best_mask = best_mask & ~m
+            # Also calculate score for negative box just for info if no positives exist
+            if not pos_scores:
+                pos_scores.append(float(scores_t[i]))
+
+    if not best_mask.any():
+        return jsonify(
+            overlay=None, mask=None, blackout=None,
+            score=0, mask_pixels=0, total_pixels=0,
+            error="Mask is empty after applying exclusion boxes",
+        )
+
+    best_score = float(sum(pos_scores) / len(pos_scores)) if pos_scores else 0.0
 
     return jsonify(
         overlay=mask_to_b64(best_mask, "overlay"),
@@ -258,7 +279,7 @@ def segment_boxes():
         blackout=blackout_to_b64(image, best_mask),
         score=best_score,
         mask_pixels=int(best_mask.sum()),
-        total_pixels=int(best_mask.shape[0] * best_mask.shape[1]),
+        total_pixels=int(W * H),
     )
 
 
