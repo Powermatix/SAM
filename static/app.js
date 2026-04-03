@@ -100,9 +100,9 @@ function makeCardHTML(img, idx) {
 
     let overlayStyle = "display:none;", overlaySrc = "";
     if (isDone && img.finalOverlay) {
-        if (S.view === "overlay" && img.finalOverlay) { overlayStyle = ""; overlaySrc = "data:image/png;base64," + img.finalOverlay; }
-        else if (S.view === "mask" && img.finalMask)  { overlayStyle = ""; overlaySrc = "data:image/png;base64," + img.finalMask; }
-        else if (S.view === "blackout" && img.finalBlackout) { overlayStyle = ""; overlaySrc = "data:image/png;base64," + img.finalBlackout; }
+        if (S.view === "overlay" && img.finalOverlay) { overlayStyle = ""; overlaySrc = img.finalOverlay; }
+        else if (S.view === "mask" && img.finalMask)  { overlayStyle = ""; overlaySrc = img.finalMask; }
+        else if (S.view === "blackout" && img.finalBlackout) { overlayStyle = ""; overlaySrc = img.finalBlackout; }
     }
     const baseStyle = (isDone && (S.view === "blackout" || S.view === "mask")) ? "display:none;" : "";
     const coverage = (isDone && img.totalPixels)
@@ -146,7 +146,7 @@ function updateBatchThumbnails() {
         const src = srcMap[S.view];
         if (src && S.view !== "original") {
             baseImg.style.display = (S.view === "blackout" || S.view === "mask") ? "none" : "";
-            overlayImg.src = "data:image/png;base64," + src;
+            overlayImg.src = src;
             overlayImg.style.display = "";
         } else {
             baseImg.style.display = "";
@@ -419,9 +419,10 @@ document.getElementById("selectAllBtn").addEventListener("click", () => {
 async function rebuildTextMask() {
     const sel = S.textObjects.filter(o => o.selected);
     if (sel.length === 0) { S.finalOverlay = null; S.finalMask = null; S.finalBlackout = null; redraw(); updateUI(); return; }
+    showSpinner("Rebuilding mask…");
     const combined = document.createElement("canvas"); combined.width = S.imgW; combined.height = S.imgH;
     const cctx = combined.getContext("2d");
-    for (const obj of sel) { const img = await loadImgB64(obj.mask); cctx.drawImage(img, 0, 0); }
+    for (const obj of sel) { const img = await loadImgURL(obj.mask); cctx.drawImage(img, 0, 0); }
     const idata = cctx.getImageData(0, 0, S.imgW, S.imgH);
     const overlay = document.createElement("canvas"); overlay.width = S.imgW; overlay.height = S.imgH;
     const octx = overlay.getContext("2d"); const odata = octx.createImageData(S.imgW, S.imgH);
@@ -436,11 +437,13 @@ async function rebuildTextMask() {
         }
     }
     octx.putImageData(odata, 0, 0); bctx.putImageData(bdata, 0, 0);
-    S.finalOverlay = canvasToB64(overlay); S.finalMask = canvasToB64(combined); S.finalBlackout = canvasToB64(bcanvas);
-    S.prePaintOverlay = S.finalOverlay; S.prePaintMask = S.finalMask; S.prePaintBlackout = S.finalBlackout;
-    S.textCombinedMask = S.finalMask;
+    const urls = await saveMaskToServer(S.images[S.activeIdx].id, overlay, combined, bcanvas);
+    S.finalOverlay = urls.overlay; S.finalMask = urls.mask; S.finalBlackout = urls.blackout;
+    S.prePaintOverlay = urls.overlay; S.prePaintMask = urls.mask; S.prePaintBlackout = urls.blackout;
+    S.textCombinedMask = urls.mask;
     showScore(null, maskPx, S.imgW * S.imgH);
-    if (S.hasPaintEdits) await applyManualEdits(); else redrawWithOverlay(S.finalOverlay);
+    hideSpinner();
+    if (S.hasPaintEdits) await applyManualEdits(); else await redrawWithOverlay(S.finalOverlay);
     updateUI();
 }
 
@@ -568,7 +571,7 @@ async function applyManualEdits() {
     if (!baseMask && !S.hasPaintEdits) return;
     const c = document.createElement("canvas"); c.width = S.imgW; c.height = S.imgH;
     const cx = c.getContext("2d");
-    if (baseMask) { const bi = await loadImgB64(baseMask); cx.drawImage(bi, 0, 0); }
+    if (baseMask) { const bi = await loadImgURL(baseMask); cx.drawImage(bi, 0, 0); }
     const baseData  = cx.getImageData(0, 0, S.imgW, S.imgH);
     const paintData = paintCtx.getImageData(0, 0, S.imgW, S.imgH);
     const overlay = document.createElement("canvas"); overlay.width = S.imgW; overlay.height = S.imgH;
@@ -592,9 +595,10 @@ async function applyManualEdits() {
         }
     }
     octx.putImageData(odata, 0, 0); bctx.putImageData(bdata, 0, 0); mctx.putImageData(mdata, 0, 0);
-    S.finalOverlay = canvasToB64(overlay); S.finalMask = canvasToB64(mcanvas); S.finalBlackout = canvasToB64(bcanvas);
+    const urls = await saveMaskToServer(S.images[S.activeIdx].id, overlay, mcanvas, bcanvas);
+    S.finalOverlay = urls.overlay; S.finalMask = urls.mask; S.finalBlackout = urls.blackout;
     showScore(null, maskPx, S.imgW * S.imgH);
-    redrawWithOverlay(S.finalOverlay); updateUI();
+    await redrawWithOverlay(S.finalOverlay); updateUI();
     // Keep image record in sync so the card thumbnail is current after going back
     if (S.activeIdx !== null) {
         const img = S.images[S.activeIdx];
@@ -657,11 +661,11 @@ function redrawWithOverlaySync() {
     drawPolyPreview(); ctx.restore();
 }
 
-async function redrawWithOverlay(overlayB64) {
-    if (!overlayB64) { currentOverlayImg = null; currentMaskImg = null; currentBlackoutImg = null; redraw(); return; }
-    currentOverlayImg = await loadImgB64(overlayB64);
-    if (S.finalMask)     currentMaskImg     = await loadImgB64(S.finalMask);
-    if (S.finalBlackout) currentBlackoutImg = await loadImgB64(S.finalBlackout);
+async function redrawWithOverlay(overlayUrl) {
+    if (!overlayUrl) { currentOverlayImg = null; currentMaskImg = null; currentBlackoutImg = null; redraw(); return; }
+    currentOverlayImg = await loadImgURL(overlayUrl);
+    if (S.finalMask)     currentMaskImg     = await loadImgURL(S.finalMask);
+    if (S.finalBlackout) currentBlackoutImg = await loadImgURL(S.finalBlackout);
     redrawWithOverlaySync();
 }
 
@@ -756,13 +760,23 @@ document.getElementById("downloadBtn").addEventListener("click", async () => {
     if (S.activeIdx === null || !S.finalOverlay) return;
     const img = S.images[S.activeIdx];
     const baseName = img.name.replace(/\.[^.]+$/, "");
-    const c = document.createElement("canvas"); c.width = S.imgW; c.height = S.imgH;
-    const cx = c.getContext("2d"); cx.drawImage(baseImage, 0, 0);
-    const oi = await loadImgB64(S.finalOverlay); cx.drawImage(oi, 0, 0);
-    downloadDataUrl(c.toDataURL("image/png"), `${baseName}_overlay.png`);
-    if (S.finalMask)     downloadDataUrl("data:image/png;base64," + S.finalMask,     `${baseName}_mask.png`);
-    if (S.finalBlackout) downloadDataUrl("data:image/png;base64," + S.finalBlackout, `${baseName}_blackout.png`);
-    toast("Downloaded overlay, mask & blackout");
+    if (S.view === "mask" && S.finalMask) {
+        downloadURL(S.finalMask, `${baseName}_mask.png`);
+        toast("Downloaded mask");
+    } else if (S.view === "blackout" && S.finalBlackout) {
+        downloadURL(S.finalBlackout, `${baseName}_blackout.png`);
+        toast("Downloaded blackout");
+    } else if (S.view === "original") {
+        downloadURL(`/uploads/${img.id}.png`, `${baseName}_original.png`);
+        toast("Downloaded original");
+    } else {
+        // overlay view — composite base + overlay layer
+        const c = document.createElement("canvas"); c.width = S.imgW; c.height = S.imgH;
+        const cx = c.getContext("2d"); cx.drawImage(baseImage, 0, 0);
+        const oi = await loadImgURL(S.finalOverlay); cx.drawImage(oi, 0, 0);
+        downloadDataUrl(c.toDataURL("image/png"), `${baseName}_overlay.png`);
+        toast("Downloaded overlay");
+    }
 });
 
 document.getElementById("downloadAllBtn").addEventListener("click", async () => {
@@ -779,12 +793,12 @@ async function downloadImageResults(img) {
     const baseName = img.name.replace(/\.[^.]+$/, "");
     const c = document.createElement("canvas"); c.width = img.width; c.height = img.height;
     const cx = c.getContext("2d");
-    const base = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = `/uploads/${img.id}.png`; });
+    const base = await loadImgURL(`/uploads/${img.id}.png`);
     cx.drawImage(base, 0, 0);
-    const ov = await loadImgB64(img.finalOverlay); cx.drawImage(ov, 0, 0);
+    const ov = await loadImgURL(img.finalOverlay); cx.drawImage(ov, 0, 0);
     downloadDataUrl(c.toDataURL("image/png"), `${baseName}_overlay.png`);
-    if (img.finalMask)     downloadDataUrl("data:image/png;base64," + img.finalMask,     `${baseName}_mask.png`);
-    if (img.finalBlackout) downloadDataUrl("data:image/png;base64," + img.finalBlackout, `${baseName}_blackout.png`);
+    if (img.finalMask)     downloadURL(img.finalMask,     `${baseName}_mask.png`);
+    if (img.finalBlackout) downloadURL(img.finalBlackout, `${baseName}_blackout.png`);
 }
 
 // ── Keyboard ───────────────────────────────────────────────────────────────
@@ -803,10 +817,25 @@ document.addEventListener("keyup", e => {
 });
 
 // ── Utils ──────────────────────────────────────────────────────────────────
-function loadImgB64(b64) { return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = "data:image/png;base64," + b64; }); }
+function loadImgURL(url) { return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = url; }); }
 function canvasToB64(c) { return c.toDataURL("image/png").replace("data:image/png;base64,", ""); }
 function showSpinner(t) { document.getElementById("spinner").classList.add("on"); document.getElementById("spinnerText").textContent = t||"Processing…"; }
 function hideSpinner() { document.getElementById("spinner").classList.remove("on"); }
 function toast(m) { const t = document.getElementById("toast"); t.textContent = m; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2800); }
 function downloadDataUrl(url, name) { const a = document.createElement("a"); a.href = url; a.download = name; a.click(); }
+function downloadURL(url, name) { const a = document.createElement("a"); a.href = url; a.download = name; a.click(); }
+async function saveMaskToServer(imgId, overlayCanvas, maskCanvas, blackoutCanvas) {
+    const r = await fetch("/save_mask", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            image_id: imgId,
+            overlay_b64: canvasToB64(overlayCanvas),
+            mask_b64: canvasToB64(maskCanvas),
+            blackout_b64: canvasToB64(blackoutCanvas),
+        }),
+    });
+    const d = await r.json();
+    const t = Date.now();
+    return { overlay: d.overlay + "?t=" + t, mask: d.mask + "?t=" + t, blackout: d.blackout + "?t=" + t };
+}
 window.addEventListener("resize", () => { if (S.activeIdx !== null && baseImage) { fitCanvas(); if (S.finalOverlay) redrawWithOverlay(S.finalOverlay); else redraw(); } });

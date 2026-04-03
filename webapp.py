@@ -102,6 +102,29 @@ def blackout_to_b64(image: Image.Image, mask_np: np.ndarray) -> str:
     return base64.b64encode(buf.getvalue()).decode()
 
 
+def save_mask_results(img_id: str, mask_np: np.ndarray, image: Image.Image):
+    """Save overlay, mask, and blackout PNGs to the uploads directory."""
+    H, W = mask_np.shape
+
+    overlay_arr = np.zeros((H, W, 4), dtype=np.uint8)
+    overlay_arr[mask_np] = [60, 140, 255, 128]
+    Image.fromarray(overlay_arr, "RGBA").save(
+        os.path.join(UPLOAD_DIR, f"{img_id}_overlay.png"))
+
+    Image.fromarray((mask_np * 255).astype(np.uint8), "L").save(
+        os.path.join(UPLOAD_DIR, f"{img_id}_mask.png"))
+
+    blackout_arr = np.array(image)
+    blackout_arr[mask_np] = 0
+    Image.fromarray(blackout_arr).save(
+        os.path.join(UPLOAD_DIR, f"{img_id}_blackout.png"))
+
+
+def save_b64_png(b64_str: str, path: str):
+    with open(path, "wb") as f:
+        f.write(base64.b64decode(b64_str))
+
+
 # ─── Routes ──────────────────────────────────────────────────────────────────
 
 @app.route("/")
@@ -123,7 +146,9 @@ def upload():
 
 @app.route("/uploads/<filename>")
 def serve_upload(filename):
-    return send_from_directory(UPLOAD_DIR, filename)
+    resp = send_from_directory(UPLOAD_DIR, filename)
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return resp
 
 
 @app.route("/segment_text", methods=["POST"])
@@ -170,25 +195,28 @@ def segment_text():
     objects = []
     for i in range(n):
         mask_np = masks[i].cpu().numpy().astype(bool)
+        # Save per-object mask to disk
+        Image.fromarray((mask_np * 255).astype(np.uint8), "L").save(
+            os.path.join(UPLOAD_DIR, f"{img_id}_obj{i}_mask.png"))
         box = [round(float(v)) for v in boxes[i].tolist()]
         score = float(scores[i])
         objects.append({
             "id": i,
-            "overlay": mask_to_b64(mask_np, "overlay"),
-            "mask": mask_to_b64(mask_np, "mask"),
+            "mask": f"/uploads/{img_id}_obj{i}_mask.png",
             "box": box,
             "score": score,
             "pixels": int(mask_np.sum()),
         })
 
     combined = masks.any(dim=0).cpu().numpy().astype(bool)
+    save_mask_results(img_id, combined, image)
 
     return jsonify(
         found=n,
         objects=objects,
-        combined_overlay=mask_to_b64(combined, "overlay"),
-        combined_mask=mask_to_b64(combined, "mask"),
-        combined_blackout=blackout_to_b64(image, combined),
+        combined_overlay=f"/uploads/{img_id}_overlay.png",
+        combined_mask=f"/uploads/{img_id}_mask.png",
+        combined_blackout=f"/uploads/{img_id}_blackout.png",
         combined_pixels=int(combined.sum()),
         total_pixels=int(combined.shape[0] * combined.shape[1]),
     )
@@ -272,14 +300,33 @@ def segment_boxes():
         )
 
     best_score = float(sum(pos_scores) / len(pos_scores)) if pos_scores else 0.0
+    save_mask_results(img_id, best_mask, image)
 
     return jsonify(
-        overlay=mask_to_b64(best_mask, "overlay"),
-        mask=mask_to_b64(best_mask, "mask"),
-        blackout=blackout_to_b64(image, best_mask),
+        overlay=f"/uploads/{img_id}_overlay.png",
+        mask=f"/uploads/{img_id}_mask.png",
+        blackout=f"/uploads/{img_id}_blackout.png",
         score=best_score,
         mask_pixels=int(best_mask.sum()),
         total_pixels=int(W * H),
+    )
+
+
+@app.route("/save_mask", methods=["POST"])
+def save_mask():
+    """Receive client-side polygon-edited mask data and persist to disk."""
+    data = request.json
+    img_id = data.get("image_id")
+    if not img_id or not os.path.exists(os.path.join(UPLOAD_DIR, f"{img_id}.png")):
+        return jsonify(error="Invalid image_id"), 400
+    for kind, key in [("overlay", "overlay_b64"), ("mask", "mask_b64"), ("blackout", "blackout_b64")]:
+        b64 = data.get(key)
+        if b64:
+            save_b64_png(b64, os.path.join(UPLOAD_DIR, f"{img_id}_{kind}.png"))
+    return jsonify(
+        overlay=f"/uploads/{img_id}_overlay.png",
+        mask=f"/uploads/{img_id}_mask.png",
+        blackout=f"/uploads/{img_id}_blackout.png",
     )
 
 
