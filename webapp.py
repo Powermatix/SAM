@@ -51,7 +51,11 @@ dtype = None
 
 def load_model():
     global processor, model, device, dtype
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    forced_device = os.environ.get("SAM3_DEVICE", "").strip().lower()
+    if forced_device in {"cpu", "cuda"}:
+        device = forced_device
+    else:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
     dtype = torch.float16 if device == "cuda" else torch.float32
 
     print(f"Loading Sam3Model on {device.upper()}...")
@@ -59,6 +63,54 @@ def load_model():
     model = Sam3Model.from_pretrained(MODEL_ID, torch_dtype=dtype).to(device)
     model.eval()
     print("Model ready.\n")
+
+
+def _is_cuda_timeout_or_runtime_error(exc: RuntimeError) -> bool:
+    msg = str(exc)
+    return "CUDA error" in msg or "device-side assert" in msg or "launch timed out" in msg
+
+
+def _fallback_to_cpu_model(reason: Exception) -> bool:
+    global model, device, dtype
+    if device != "cuda":
+        return False
+
+    print(f"[WARN] CUDA inference failed: {reason}")
+    print("[WARN] Falling back to CPU for stability.")
+    try:
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:
+        pass
+
+    # After CUDA timeout/TDR on Windows, moving an existing CUDA model to CPU
+    # can fail because CUDA context is already in an invalid state.
+    # Re-create model directly on CPU instead.
+    try:
+        device = "cpu"
+        dtype = torch.float32
+        model = Sam3Model.from_pretrained(MODEL_ID, torch_dtype=dtype).to(device)
+        model.eval()
+        return True
+    except Exception as reload_exc:
+        print(f"[ERROR] CPU fallback failed while reloading model: {reload_exc}")
+        return False
+
+
+def run_sam3_inference(raw_inputs: dict):
+    """Run model inference with one automatic fallback from CUDA to CPU."""
+    try:
+        model_inputs = to_device(raw_inputs)
+        with torch.no_grad():
+            outputs = model(**model_inputs)
+        return outputs, model_inputs
+    except RuntimeError as exc:
+        if _is_cuda_timeout_or_runtime_error(exc) and _fallback_to_cpu_model(exc):
+            model_inputs = to_device(raw_inputs)
+            with torch.no_grad():
+                outputs = model(**model_inputs)
+            return outputs, model_inputs
+        raise
 
 
 def to_device(inputs: dict) -> dict:
@@ -143,12 +195,8 @@ def segment_text():
 
     image = Image.open(img_path).convert("RGB")
 
-    inputs = to_device(
-        processor(images=image, text=text, return_tensors="pt")
-    )
-
-    with torch.no_grad():
-        outputs = model(**inputs)
+    raw_inputs = processor(images=image, text=text, return_tensors="pt")
+    outputs, inputs = run_sam3_inference(raw_inputs)
 
     outputs = outputs_to_cpu(outputs)
 
@@ -216,17 +264,13 @@ def segment_boxes():
     boxes = [[b["x1"], b["y1"], b["x2"], b["y2"]] for b in boxes_data]
     labels = [b["label"] for b in boxes_data]
 
-    inputs = to_device(
-        processor(
-            images=image,
-            input_boxes=[boxes],
-            input_boxes_labels=[labels],
-            return_tensors="pt",
-        )
+    raw_inputs = processor(
+        images=image,
+        input_boxes=[boxes],
+        input_boxes_labels=[labels],
+        return_tensors="pt",
     )
-
-    with torch.no_grad():
-        outputs = model(**inputs)
+    outputs, inputs = run_sam3_inference(raw_inputs)
 
     outputs = outputs_to_cpu(outputs)
 
