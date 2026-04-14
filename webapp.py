@@ -49,16 +49,44 @@ device = None
 dtype = None
 
 
-def load_model():
+def _resolve_device(preferred: str = "auto") -> str:
+    preferred = (preferred or "auto").strip().lower()
+    if preferred == "gpu":
+        preferred = "cuda"
+
+    if preferred not in {"auto", "cpu", "cuda"}:
+        raise ValueError(f"Unsupported device '{preferred}'. Use: auto, cuda, or cpu.")
+
+    if preferred == "cpu":
+        return "cpu"
+
+    cuda_ok = torch.cuda.is_available()
+    if preferred == "cuda":
+        if not cuda_ok:
+            raise RuntimeError(
+                "CUDA was requested but is not available in this environment. "
+                "Install CUDA-enabled PyTorch and check your NVIDIA driver."
+            )
+        return "cuda"
+
+    return "cuda" if cuda_ok else "cpu"
+
+
+def load_model(preferred_device: str = "auto"):
     global processor, model, device, dtype
-    forced_device = os.environ.get("SAM3_DEVICE", "").strip().lower()
-    if forced_device in {"cpu", "cuda"}:
-        device = forced_device
-    else:
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    # CLI argument has priority. If omitted, SAM3_DEVICE env var can override auto.
+    env_device = os.environ.get("SAM3_DEVICE", "").strip().lower()
+    selected = preferred_device if preferred_device != "auto" else (env_device or "auto")
+    device = _resolve_device(selected)
     dtype = torch.float16 if device == "cuda" else torch.float32
 
-    print(f"Loading Sam3Model on {device.upper()}...")
+    if device == "cuda":
+        gpu_name = torch.cuda.get_device_name(0)
+        print(f"Loading Sam3Model on CUDA GPU: {gpu_name}")
+    else:
+        print("Loading Sam3Model on CPU")
+
     processor = Sam3Processor.from_pretrained(MODEL_ID)
     model = Sam3Model.from_pretrained(MODEL_ID, torch_dtype=dtype).to(device)
     model.eval()
@@ -381,9 +409,15 @@ def main():
     p.add_argument("--port", type=int, default=5000)
     p.add_argument("--host", default="127.0.0.1",
                    help="Use 0.0.0.0 to allow remote access")
+    p.add_argument(
+        "--device",
+        default="auto",
+        choices=["auto", "cuda", "gpu", "cpu"],
+        help="Inference device (default: auto). Use 'cuda' or 'gpu' to force NVIDIA GPU.",
+    )
     args = p.parse_args()
 
-    load_model()
+    load_model(args.device)
 
     print(f"\n  → Open http://{args.host}:{args.port} in your browser\n")
     app.run(host=args.host, port=args.port, debug=False)

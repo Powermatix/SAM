@@ -269,7 +269,105 @@ function showScore(score, px, total) {
 }
 function updateUI() {
     document.getElementById("downloadBtn").disabled = !S.finalOverlay;
+    document.getElementById("invertMaskBtn").disabled = !S.finalMask;
     updatePolyUI();
+}
+
+async function invertCurrentMask() {
+    if (S.activeIdx === null || !S.finalMask || !baseImage) {
+        toast("No mask to invert yet");
+        return;
+    }
+
+    showSpinner("Inverting mask...");
+    try {
+        const srcMask = await loadImgURL(S.finalMask);
+
+        const maskCanvas = document.createElement("canvas");
+        maskCanvas.width = S.imgW;
+        maskCanvas.height = S.imgH;
+        const mctx = maskCanvas.getContext("2d");
+        mctx.drawImage(srcMask, 0, 0, S.imgW, S.imgH);
+
+        const maskData = mctx.getImageData(0, 0, S.imgW, S.imgH);
+
+        const overlayCanvas = document.createElement("canvas");
+        overlayCanvas.width = S.imgW;
+        overlayCanvas.height = S.imgH;
+        const octx = overlayCanvas.getContext("2d");
+        const odata = octx.createImageData(S.imgW, S.imgH);
+
+        const blackoutCanvas = document.createElement("canvas");
+        blackoutCanvas.width = S.imgW;
+        blackoutCanvas.height = S.imgH;
+        const bctx = blackoutCanvas.getContext("2d");
+        bctx.drawImage(baseImage, 0, 0);
+        const bdata = bctx.getImageData(0, 0, S.imgW, S.imgH);
+
+        let maskPx = 0;
+        for (let i = 0; i < maskData.data.length; i += 4) {
+            const wasMasked = maskData.data[i] > 127;
+            const isMasked = !wasMasked;
+
+            if (isMasked) {
+                maskData.data[i] = 255;
+                maskData.data[i + 1] = 255;
+                maskData.data[i + 2] = 255;
+                maskData.data[i + 3] = 255;
+
+                odata.data[i] = 60;
+                odata.data[i + 1] = 140;
+                odata.data[i + 2] = 255;
+                odata.data[i + 3] = 128;
+
+                bdata.data[i] = 0;
+                bdata.data[i + 1] = 0;
+                bdata.data[i + 2] = 0;
+                maskPx++;
+            } else {
+                maskData.data[i] = 0;
+                maskData.data[i + 1] = 0;
+                maskData.data[i + 2] = 0;
+                maskData.data[i + 3] = 255;
+            }
+        }
+
+        mctx.putImageData(maskData, 0, 0);
+        octx.putImageData(odata, 0, 0);
+        bctx.putImageData(bdata, 0, 0);
+
+        const urls = await saveMaskToServer(S.images[S.activeIdx].id, overlayCanvas, maskCanvas, blackoutCanvas);
+
+        S.finalOverlay = urls.overlay;
+        S.finalMask = urls.mask;
+        S.finalBlackout = urls.blackout;
+
+        // Inversion becomes the new baseline for subsequent polygon edits.
+        S.prePaintOverlay = urls.overlay;
+        S.prePaintMask = urls.mask;
+        S.prePaintBlackout = urls.blackout;
+
+        initPaintCanvas();
+        showScore(null, maskPx, S.imgW * S.imgH);
+        await redrawWithOverlay(S.finalOverlay);
+        updateUI();
+
+        const img = S.images[S.activeIdx];
+        img.finalOverlay = S.finalOverlay;
+        img.finalMask = S.finalMask;
+        img.finalBlackout = S.finalBlackout;
+        img.prePaintOverlay = S.prePaintOverlay;
+        img.prePaintMask = S.prePaintMask;
+        img.prePaintBlackout = S.prePaintBlackout;
+        img.combinedPixels = maskPx;
+        img.totalPixels = S.imgW * S.imgH;
+
+        toast("Mask inverted");
+    } catch (e) {
+        toast("Mask inversion failed");
+    } finally {
+        hideSpinner();
+    }
 }
 
 // ── Polygon mode buttons ───────────────────────────────────────────────────
@@ -280,6 +378,7 @@ document.querySelectorAll(".mode-btn").forEach(btn => btn.addEventListener("clic
 }));
 document.getElementById("zoomReset").addEventListener("click", () => { resetZoom(); redrawCurrent(); });
 document.getElementById("undoPolyBtn").addEventListener("click", () => undoLastPoly());
+document.getElementById("invertMaskBtn").addEventListener("click", () => invertCurrentMask());
 document.getElementById("clearAllBtn").addEventListener("click", () => {
     initPaintCanvas();
     if (S.prePaintOverlay) {
